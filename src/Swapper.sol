@@ -1,25 +1,31 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 pragma solidity ^0.8.19;
 
-import "@uniswap/v3-core/0.8/libraries/TransferHelper.sol";
-import "@uniswap/v3-core/0.8/interfaces/IUniswapV3Factory.sol";
+// v3-core 0.8
+import "@uniswap/v3-core/contracts/libraries/TransferHelper.sol";
+import "@uniswap/v3-core/contracts/interfaces/IUniswapV3Factory.sol";
 
-import "./dependencies/uniswap-0.8/ISwapRouter.sol";
-import "@uniswap/v3-core/0.8/libraries/OracleLibrary.sol";
+// v3-periphery 0.8
+import "@uniswap/v3-periphery/contracts/libraries/OracleLibrary.sol";
+import "@uniswap/v3-periphery/contracts/interfaces/ISwapRouter.sol";
 
+// openzeppelin safeTransfer
+import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
+
+// prb-math v3
 import { SD59x18 } from "@prb/math/SD59x18.sol";
 import { UD60x18 } from "@prb/math/UD60x18.sol";
 
 
-contract V3Swapper {
+contract Swapper {
     // using PRBMathSD59x18 for int256;
-/* 
+
     IUniswapV3Factory public constant v3Factory = IUniswapV3Factory(0x1F98431c8aD98523631AE4a59f267346ea31F984);
     ISwapRouter public constant swapRouter = ISwapRouter(0xE592427A0AEce92De3Edee1F18E0157C05861564);
 
     // @dev swaps a fixed amount of WETH for a maximum possible amount of DAI
     function swapExactInputSingle(address token0, address token1, uint amountIn) internal returns (uint amountOut) {
-        TransferHelper.safeApprove(token0, address(swapRouter), amountIn);
+        SafeERC20.safeApprove(IERC20(token0), address(swapRouter), amountIn);
 
         ISwapRouter.ExactInputSingleParams memory params = ISwapRouter
         .ExactInputSingleParams({
@@ -36,7 +42,7 @@ contract V3Swapper {
     }
 
     function swapExactOutputSingle(address token0, address token1, uint amountOut, uint amountInMaximum) internal returns (uint amountIn, uint leftOver) {
-        TransferHelper.safeApprove(token0, address(swapRouter), amountInMaximum);
+        SafeERC20.safeApprove(IERC20(token0), address(swapRouter), amountInMaximum);
 
         ISwapRouter.ExactOutputSingleParams memory params = ISwapRouter
             .ExactOutputSingleParams({
@@ -54,7 +60,7 @@ contract V3Swapper {
 
         if (amountIn < amountInMaximum) {
             // Reset approval on router
-            TransferHelper.safeApprove(token0, address(swapRouter), 0);
+            SafeERC20.safeApprove(IERC20(token0), address(swapRouter), 0);
             
 
 
@@ -108,5 +114,5 @@ contract V3Swapper {
 
         require(pool != address(0), "DeltaDex: Pool doesn't exist on Uniswap V3, 85");
         return pool;
-    } */
+    }
 }

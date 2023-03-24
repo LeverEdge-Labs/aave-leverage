@@ -1,3 +1,5 @@
 @prb/math/=lib/prb-math/src/
 @openzeppelin/contracts/=lib/openzeppelin-contracts/contracts/
-@uniswap/v3-core/0.8/=lib/v3-core/contracts/
+
+@uniswap/v3-core/=lib/v3-core/
+@uniswap/v3-periphery/=lib/v3-periphery/
