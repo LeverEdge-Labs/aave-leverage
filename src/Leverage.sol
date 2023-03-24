@@ -103,11 +103,9 @@ contract Leverage is Swapper {
         address baseAsset
     ) private {
         IERC20(leveragedAsset).approve(address(aaveV3), totalAmount);
-        
         aaveV3.supply(leveragedAsset, totalAmount, address(this), 0);
 
         uint price = getPrice(leveragedAsset, baseAsset);
-
         uint borrowAmount = flashloanAmount * price * 1.0039e17 / 1e35;
 
         aaveV3.borrow(baseAsset, borrowAmount, 2, 0, address(this));
@@ -170,6 +168,7 @@ contract Leverage is Swapper {
                                                 false);
 
         bytes memory params = abi.encode(flashParams);
+
         getflashloan(baseAsset, flashLoanAmount, params);
         return true;
     }
@@ -265,8 +264,6 @@ contract Leverage is Swapper {
 
         uint[] memory modes = new uint[](1);
         modes[0] = 0;
-
-        console.log("get flashloan");
 
         aaveV3.flashLoan(address(this), assets, amounts, modes, address(this), params, 0);
     }
