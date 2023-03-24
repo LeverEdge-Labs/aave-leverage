@@ -12,18 +12,12 @@ import "@uniswap/v3-periphery/contracts/interfaces/ISwapRouter.sol";
 // openzeppelin safeTransfer
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 
-// prb-math v3
-import { SD59x18 } from "@prb/math/SD59x18.sol";
-import { UD60x18 } from "@prb/math/UD60x18.sol";
-
 
 contract Swapper {
-    // using PRBMathSD59x18 for int256;
-
     IUniswapV3Factory public constant v3Factory = IUniswapV3Factory(0x1F98431c8aD98523631AE4a59f267346ea31F984);
     ISwapRouter public constant swapRouter = ISwapRouter(0xE592427A0AEce92De3Edee1F18E0157C05861564);
 
-    // @dev swaps a fixed amount of WETH for a maximum possible amount of DAI
+    // @dev swaps a fixed amount of token0 for a maximum possible amount of token1
     function swapExactInputSingle(address token0, address token1, uint amountIn) internal returns (uint amountOut) {
         SafeERC20.safeApprove(IERC20(token0), address(swapRouter), amountIn);
 
@@ -62,12 +56,9 @@ contract Swapper {
             // Reset approval on router
             SafeERC20.safeApprove(IERC20(token0), address(swapRouter), 0);
             
-
-
             leftOver = amountInMaximum - amountIn;
         }
     }
-
 
     // @dev gets price of token0 in terms of token1 
     function getPrice(address token0, address token1) public view returns (uint) {
@@ -112,7 +103,7 @@ contract Swapper {
     function getPool(address token0, address token1, uint24 fee) internal view returns (address) {
         address pool = v3Factory.getPool(token0, token1, fee);
 
-        require(pool != address(0), "DeltaDex: Pool doesn't exist on Uniswap V3, 85");
+        require(pool != address(0), "Pool doesn't exist on Uniswap V3");
         return pool;
     }
 }
