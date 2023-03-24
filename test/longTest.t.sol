@@ -46,9 +46,11 @@ contract longTest is Test {
 
         console.log("Balance WETH");
         console.log(weth.balanceOf(address(this)));
-
-
         console.log(address(leverage));
+
+        // STEP #2 Approve leverage
+        IERC20(WETH).approve(address(leverage), type(uint).max);
+
 
         // STEP #2 Open Long
         leverage.long(USDC, WETH, 1e18, ud(2e18));

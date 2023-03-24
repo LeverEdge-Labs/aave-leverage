@@ -48,7 +48,7 @@ contract Leverage is Swapper {
     IPOOL public aaveV3;
 
     constructor () {
-        aaveV3 = IPOOL(0x794a61358D6845594F94dc1DB02A252b5b4814aD);
+        aaveV3 = IPOOL(0x87870Bca3F3fD6335C3F4ce8392D69350B4fA4E2);
     }
 
     function getUserPositions(address user) external view returns (uint numberPositions) {
@@ -61,12 +61,11 @@ contract Leverage is Swapper {
         uint amountBase,
         UD60x18 leverage
     ) external returns (bool) {
-
-        console.log("HERE");
-
         IERC20(leveragedAsset).transferFrom(msg.sender, address(this), amountBase);
 
-        uint flashloanAmount = unwrap(ud(amountBase).mul(leverage)); 
+        uint flashloanAmount = unwrap(ud(amountBase).mul(leverage));
+
+        console.log("HERE");
 
         uint ID = IDs[msg.sender].length;
         IDs[msg.sender].push(ID);
@@ -96,6 +95,8 @@ contract Leverage is Swapper {
         uint liquidityBase,
         address baseAsset
     ) private {
+        console.log("in execute long");
+
         IERC20(flashloanAsset).approve(address(aaveV3), liquidityBase);
         aaveV3.supply(flashloanAsset, liquidityBase, address(this), 0);
 
@@ -265,6 +266,8 @@ contract Leverage is Swapper {
         uint[] memory modes = new uint[](1);
         modes[0] = 0;
 
+        console.log("get flashloan");
+
         aaveV3.flashLoan(address(this), assets, amounts, modes, address(this), params, 0);
     }
 
@@ -278,6 +281,8 @@ contract Leverage is Swapper {
     ) external returns (bool) {
         require(msg.sender == address(aaveV3), "not aave");
         require(initiator == address(this), "only from this contract");
+
+        console.log("execute operation");
 
         flashloanParams memory params = abi.decode(_params, (flashloanParams));
 
