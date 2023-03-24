@@ -17,13 +17,16 @@ import "./Swapper.sol";
 // console log
 import "forge-std/console.sol";
 
+/// @title Algorithmic Leverage Trade Builder
+/// @author LeverEdge Labs
+/// @dev This contract is currently in development
 
 contract Leverage is Swapper {
 
     struct Position {
         address baseAsset;
         address leveragedAsset;
-        uint baseAssetAmount;
+        uint amount;
         UD60x18 leverage;
         bool isLong;
         uint initialAmount;
@@ -33,7 +36,7 @@ contract Leverage is Swapper {
     struct flashloanParams {
         address user;
         address nonCollateralAsset;
-        uint amountBase;
+        uint amount;
         UD60x18 leverage;
         bool isLong;
         bool isClose;
@@ -55,22 +58,25 @@ contract Leverage is Swapper {
         return IDs[user].length;
     }
 
+    /// @notice Intiate long function
+    /// @param baseAsset stable asset
+    /// @param leveragedAsset leveraged asset 
+    /// @param amount amount of leveraged asset
+    /// @param leverage amount in UD60x18 format (1<x<5)
     function long(
         address baseAsset,
         address leveragedAsset,
-        uint amountBase,
+        uint amount,
         UD60x18 leverage
     ) external returns (bool) {
-        IERC20(leveragedAsset).transferFrom(msg.sender, address(this), amountBase);
+        IERC20(leveragedAsset).transferFrom(msg.sender, address(this), amount);
 
-        uint flashloanAmount = unwrap(ud(amountBase).mul(leverage));
-
-        console.log("HERE");
+        uint flashLoanAmount = unwrap(ud(amount).mul(leverage));
 
         uint ID = IDs[msg.sender].length;
         IDs[msg.sender].push(ID);
 
-        Position memory position = Position(baseAsset, leveragedAsset, amountBase, leverage, true, flashloanAmount, false);
+        Position memory position = Position(baseAsset, leveragedAsset, amount, leverage, true, flashLoanAmount, false);
         positions[address(0)][msg.sender][ID] = position;
 
         // user, baseAsset, amountBase, leverage, isLong, isClose 
@@ -78,50 +84,50 @@ contract Leverage is Swapper {
         flashloanParams memory flashParams = flashloanParams(
                                                 msg.sender,
                                                 baseAsset,
-                                                (amountBase + flashloanAmount),
+                                                (amount + flashLoanAmount),
                                                 leverage,
                                                 true,
                                                 false);
 
         bytes memory params = abi.encode(flashParams);
-        getflashloan(leveragedAsset, flashloanAmount, params);
+        getflashloan(leveragedAsset, flashLoanAmount, params);
         return true;
     }
 
 
+
     function executeLong(
-        address flashloanAsset,
+        address leveragedAsset,
+        uint totalAmount,
         uint flashloanAmount,
-        uint liquidityBase,
         address baseAsset
     ) private {
-        console.log("in execute long");
+        IERC20(leveragedAsset).approve(address(aaveV3), totalAmount);
+        
+        aaveV3.supply(leveragedAsset, totalAmount, address(this), 0);
 
-        IERC20(flashloanAsset).approve(address(aaveV3), liquidityBase);
-        aaveV3.supply(flashloanAsset, liquidityBase, address(this), 0);
+        uint price = getPrice(leveragedAsset, baseAsset);
 
-        uint price = getPrice(flashloanAsset, baseAsset);
-        uint borrowAmount = flashloanAmount * price * 1.0039e17 / 1e35;//  / 1e35; //  * 1.0055024999999997e17 / 1e18 * 10;
+        uint borrowAmount = flashloanAmount * price * 1.0039e17 / 1e35;
 
         aaveV3.borrow(baseAsset, borrowAmount, 2, 0, address(this));
 
         // @dev what to do with amountOut?
         // uint amountOut = swapExactInputSingle(baseAsset, flashloanAsset, borrowAmount);
         // uint amountOut = 
-        swapExactInputSingle(baseAsset, flashloanAsset, borrowAmount);
-
+        swapExactInputSingle(baseAsset, leveragedAsset, borrowAmount);
     }
 
 
     function executeCloseLong(
         flashloanParams memory flashParams,
-        uint flashloanAmount,
+        uint flashLoanAmount,
         uint loanAmount
     ) private {
         Position memory positionParams = positions[address(0)][flashParams.user][0];
 
-        IERC20(positionParams.baseAsset).approve(address(aaveV3), flashloanAmount);
-        aaveV3.repay(positionParams.baseAsset, flashloanAmount, 2, address(this));
+        IERC20(positionParams.baseAsset).approve(address(aaveV3), flashLoanAmount);
+        aaveV3.repay(positionParams.baseAsset, flashLoanAmount, 2, address(this));
 
         uint swapAmount;
         {
@@ -146,31 +152,32 @@ contract Leverage is Swapper {
         UD60x18 leverage
     ) external returns (bool) {
         IERC20(baseAsset).transferFrom(msg.sender, address(this), amountBase);
-        uint flashloanAmount = unwrap(ud(amountBase).mul(leverage));
+
+        uint flashLoanAmount = unwrap(ud(amountBase).mul(leverage));
 
         uint ID = IDs[msg.sender].length;
         IDs[msg.sender].push(ID);
 
-        Position memory position = Position(baseAsset, leveragedAsset, amountBase, leverage, false, flashloanAmount, false);
+        Position memory position = Position(baseAsset, leveragedAsset, amountBase, leverage, false, flashLoanAmount, false);
         positions[address(0)][msg.sender][ID] = position;
 
         flashloanParams memory flashParams = flashloanParams(
                                                 msg.sender,
                                                 leveragedAsset,
-                                                (amountBase + flashloanAmount),
+                                                (amountBase + flashLoanAmount),
                                                 leverage,
                                                 false,
                                                 false);
 
         bytes memory params = abi.encode(flashParams);
-        getflashloan(baseAsset, flashloanAmount, params);
+        getflashloan(baseAsset, flashLoanAmount, params);
         return true;
     }
 
 
     function executeShort(
         address baseAsset,
-        uint flashloanAmount,
+        uint flashLoanAmount,
         uint liquidityBase, 
         address leveragedAsset
     ) private {
@@ -179,7 +186,7 @@ contract Leverage is Swapper {
 
         uint price = getPrice(leveragedAsset, baseAsset);
         uint decimals = IERC20Metadata(leveragedAsset).decimals() - IERC20Metadata(baseAsset).decimals();
-        uint borrowAmount = (((flashloanAmount * 10**decimals) / price) * 1.00433e18) / (10**decimals);
+        uint borrowAmount = (((flashLoanAmount * 10**decimals) / price) * 1.00433e18) / (10**decimals);
 
         aaveV3.borrow(leveragedAsset, borrowAmount, 2, 0, address(this));
 
@@ -190,15 +197,12 @@ contract Leverage is Swapper {
 
     function executeCloseShort(
         flashloanParams memory flashParams,
-        uint flashloanAmount,
+        uint flashLoanAmount,
         uint loanAmount
     ) private {
         Position memory positionParams = positions[address(0)][flashParams.user][0];
-        IERC20(positionParams.leveragedAsset).approve(address(aaveV3), flashloanAmount);
-        aaveV3.repay(positionParams.leveragedAsset, flashloanAmount, 2, address(this));
-
-        console.log("HERE!!");
-        viewAccountData();
+        IERC20(positionParams.leveragedAsset).approve(address(aaveV3), flashLoanAmount);
+        aaveV3.repay(positionParams.leveragedAsset, flashLoanAmount, 2, address(this));
 
         uint swapAmount;
         {
@@ -210,10 +214,6 @@ contract Leverage is Swapper {
         }
         // swap leveraged asset for base
         uint amountOut = swapExactInputSingle(positionParams.baseAsset, positionParams.leveragedAsset, swapAmount);
-
-        console.log("CLOSE SHORT");
-        console.logUint(amountOut);
-        console.logUint(loanAmount);
 
         uint userDebit = amountOut - loanAmount;
 
@@ -232,26 +232,26 @@ contract Leverage is Swapper {
 
         // flashloan amount is different for if long or short
         // @dev for long
-        // uint flashloanAmount = totalCollateralBase - totalDebtBase;
+        // uint flashLoanAmount = totalCollateralBase - totalDebtBase;
 
         address flashloanAsset;
-        uint flashloanAmount;
+        uint flashLoanAmount;
         // this is only for USDC and WETH (1e6, 1e18)
         if (pos_params.isLong == true) {
             flashloanAsset = pos_params.baseAsset;
 
-            flashloanAmount = totalDebtBase / 1e2 * 1.05e18 / 1e18; // Fixes revert with error 35 (1.0005e18)
-            // flashloanAmount = totalDebtBase / 1e2; // sometimes reverts with error 35
-            //console.log(flashloanAmount);
+            flashLoanAmount = totalDebtBase / 1e2 * 1.05e18 / 1e18; // Fixes revert with error 35 (1.0005e18)
+            // flashLoanAmount = totalDebtBase / 1e2; // sometimes reverts with error 35
+            //console.log(flashLoanAmount);
         } else {
             flashloanAsset = pos_params.leveragedAsset;
             uint price = getPrice(flashloanAsset, pos_params.baseAsset);
-            flashloanAmount = totalDebtBase * 1.05e16 / price;
+            flashLoanAmount = totalDebtBase * 1.05e16 / price;
         }
         // @dev 0 because leverage is not needed for closing position
-        flashloanParams memory flashParams = flashloanParams(msg.sender, flashloanAsset, flashloanAmount, ud(0), pos_params.isLong, true);
+        flashloanParams memory flashParams = flashloanParams(msg.sender, flashloanAsset, flashLoanAmount, ud(0), pos_params.isLong, true);
         bytes memory params = abi.encode(flashParams);
-        getflashloan(flashloanAsset, flashloanAmount, params);
+        getflashloan(flashloanAsset, flashLoanAmount, params);
         return true;
     }
 
@@ -282,15 +282,13 @@ contract Leverage is Swapper {
         require(msg.sender == address(aaveV3), "not aave");
         require(initiator == address(this), "only from this contract");
 
-        console.log("execute operation");
-
         flashloanParams memory params = abi.decode(_params, (flashloanParams));
 
         if (params.isClose == false) {
             if (params.isLong) {
-                executeLong(assets[0], amounts[0] + premiums[0], params.amountBase, params.nonCollateralAsset);
+                executeLong(assets[0], params.amount, amounts[0], params.nonCollateralAsset);
             } else {
-                executeShort(assets[0], amounts[0] + premiums[0], params.amountBase, params.nonCollateralAsset); 
+                executeShort(assets[0], amounts[0] + premiums[0], params.amount, params.nonCollateralAsset); 
             }
         } else {
             if (params.isLong) {
@@ -308,6 +306,25 @@ contract Leverage is Swapper {
 
 
 // ##################### VIEW FUNCTIONS ######################
+
+    function viewAccountData() public view {
+        (uint totalCollateralBase,
+        uint totalDebtBase, 
+        uint availableBorrowBase,
+        uint currentLiquidationThreshold,
+        uint ltv,
+        uint healthFactor) = aaveV3.getUserAccountData(address(this));
+
+        console.logUint(totalCollateralBase);
+        console.logUint(totalDebtBase);
+        console.logUint(availableBorrowBase);
+        console.logUint(currentLiquidationThreshold);
+        console.logUint(ltv);
+        console.logUint(healthFactor);
+    }
+
+
+
 
 /*     // returns price now and price of liquidation
     function getLiquidationPrice(address user, uint ID) public view returns (uint, UD60x18) {
@@ -340,22 +357,6 @@ contract Leverage is Swapper {
         return (price, liquidationPrice);
     }
  */
-
-    function viewAccountData() public view {
-        (uint totalCollateralBase,
-        uint totalDebtBase, 
-        uint availableBorrowBase,
-        uint currentLiquidationThreshold,
-        uint ltv,
-        uint healthFactor) = aaveV3.getUserAccountData(address(this));
-
-        console.logUint(totalCollateralBase);
-        console.logUint(totalDebtBase);
-        console.logUint(availableBorrowBase);
-        console.logUint(currentLiquidationThreshold);
-        console.logUint(ltv);
-        console.logUint(healthFactor);
-    }
 
 
 /*     function calculateLiquidationPrice(address user) public view returns (uint, uint) {
