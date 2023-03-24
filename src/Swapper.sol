@@ -1,11 +1,11 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 pragma solidity ^0.8.19;
 
-import "./dependencies/uniswap-0.8/TransferHelper.sol";
-import "./dependencies/uniswap-0.8/ISwapRouter.sol";
+import "@uniswap/v3-core/0.8/libraries/TransferHelper.sol";
+import "@uniswap/v3-core/0.8/interfaces/IUniswapV3Factory.sol";
 
-import "./dependencies/uniswap-0.8/IUniswapV3Factory.sol";
-import "./dependencies/uniswap-0.8/OracleLibrary.sol";
+import "./dependencies/uniswap-0.8/ISwapRouter.sol";
+import "@uniswap/v3-core/0.8/libraries/OracleLibrary.sol";
 
 import { SD59x18 } from "@prb/math/SD59x18.sol";
 import { UD60x18 } from "@prb/math/UD60x18.sol";
