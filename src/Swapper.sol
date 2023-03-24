@@ -12,8 +12,8 @@ import { UD60x18 } from "@prb/math/UD60x18.sol";
 
 
 contract V3Swapper {
-    using PRBMathSD59x18 for int256;
-
+    // using PRBMathSD59x18 for int256;
+/* 
     IUniswapV3Factory public constant v3Factory = IUniswapV3Factory(0x1F98431c8aD98523631AE4a59f267346ea31F984);
     ISwapRouter public constant swapRouter = ISwapRouter(0xE592427A0AEce92De3Edee1F18E0157C05861564);
 
@@ -56,13 +56,7 @@ contract V3Swapper {
             // Reset approval on router
             TransferHelper.safeApprove(token0, address(swapRouter), 0);
             
-            /* 
-            TransferHelper.safeTransfer(
-                token0,
-                address(this),
-                amountInMaximum - amountIn
-            );
-            */
+
 
             leftOver = amountInMaximum - amountIn;
         }
@@ -114,5 +108,5 @@ contract V3Swapper {
 
         require(pool != address(0), "DeltaDex: Pool doesn't exist on Uniswap V3, 85");
         return pool;
-    }
+    } */
 }

@@ -1,1 +1,2 @@
 @prb/math/=lib/prb-math/src/
+@openzeppelin/contracts/=lib/openzeppelin-contracts/contracts/
