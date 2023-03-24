@@ -7,7 +7,8 @@ import "./dependencies/uniswap-0.8/ISwapRouter.sol";
 import "./dependencies/uniswap-0.8/IUniswapV3Factory.sol";
 import "./dependencies/uniswap-0.8/OracleLibrary.sol";
 
-
+import { SD59x18 } from "@prb/math/SD59x18.sol";
+import { UD60x18 } from "@prb/math/UD60x18.sol";
 
 
 contract V3Swapper {
@@ -66,18 +67,7 @@ contract V3Swapper {
             leftOver = amountInMaximum - amountIn;
         }
     }
-    /* 
-    // doesn't work as intended
-    function getSqrtPriceLimitX96(uint price) internal pure returns (uint160) {
-        UD60x18 ONE_PERCENT = ud(1.05e18);
-        UD60x18 TWOxx96 = ud(2 ** 96);
 
-        UD60x18 _price = ud(price).mul(ONE_PERCENT);
-        UD60x18 sqrtPriceLimitX96 = floor(sqrt(_price).mul(TWOxx96));
-
-        return uint160(unwrap(sqrtPriceLimitX96));
-    }
-    */
 
     // @dev gets price of token0 in terms of token1 
     function getPrice(address token0, address token1) public view returns (uint) {
