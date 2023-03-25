@@ -25,8 +25,9 @@ contract longTest is Test {
         leverage = new Leverage();
     }
 
-    function testOpenLong() public {
-        // STEP #1 Get WETH
+
+    // @dev Helper functions
+    function getWETH() internal {
         IERC20 weth = IERC20(WETH);
         address user = 0xE831C8903de820137c13681E78A5780afDdf7697;
         uint balance = weth.balanceOf(user);
@@ -38,6 +39,12 @@ contract longTest is Test {
 
         console.log("Balance WETH");
         console.log(weth.balanceOf(address(this)));
+    }
+
+
+    function testOpenLong() public {
+        // STEP #1 Get WETH
+        getWETH();
 
         // STEP #2 Approve leverage
         IERC20(WETH).approve(address(leverage), type(uint).max);
@@ -45,6 +52,11 @@ contract longTest is Test {
         // STEP #3 Open Long
         // USDC WETH 1ETH 2x long
         leverage.long(USDC, WETH, 1e18, ud(2e18));
+
+        // STEP #4 Close Long
+        // ID of position 0
+        leverage.closePosition(0);
+        console.log("Position Closed");
     }
 
 

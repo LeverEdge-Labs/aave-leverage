@@ -25,8 +25,7 @@ contract shortTest is Test {
         leverage = new Leverage();
     }
 
-    function testOpenShort() public {
-        // STEP #1 Get WETH
+    function getUSDC() internal {
         IERC20 usdc = IERC20(USDC);
         address user = 0x203520F4ec42Ea39b03F62B20e20Cf17DB5fdfA7;
         uint balance = usdc.balanceOf(user);
@@ -38,6 +37,12 @@ contract shortTest is Test {
 
         console.log("Balance USDC");
         console.log(usdc.balanceOf(address(this)));
+    }
+
+
+    function testOpenShort() public {
+        // STEP #1 Get WETH
+        getUSDC();
 
         // STEP #2 Approve leverage
         IERC20(USDC).approve(address(leverage), type(uint).max);
@@ -45,6 +50,11 @@ contract shortTest is Test {
         // STEP #3 Open Short
         // USDC WETH 2000 USDC 2x short
         leverage.short(USDC, WETH, 2000e6, ud(2e18));
+
+        // STEP #4 Close Position
+        // ID of position 0
+        leverage.closePosition(0);
+        console.log("Position Closed");
     }
 
 
