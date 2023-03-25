@@ -1,10 +1,3 @@
-On Chain Algorithmic Leverage Trading
-
-Running Tests:
-```sh
-forge test -vv
-```
-
 ### **Max Theoretical Leverage for a Long Trade Using Aave V3 (Non-eMode)**
 
 On Aave V3, the max loan-to-collateral ratio is 0.8 or 4/5.
@@ -33,9 +26,9 @@ Solving for leverage:
 
 $$leverage = 5$$
 
-The max theoretical leverage for a long trade using the liquidity of Aave V3 is 5x. The reason for this is that if the maximum ratio of the user’s initial liquidity and the maximum a user can deposit to Aave using their initial liquidity and be able to return the flash loan is 1:5. 
+The max theoretical leverage for a long trade using the liquidity of Aave V3 is 5x. The reason for this is that the maximum ratio of the user’s initial liquidity, and the maximum a user can deposit to Aave using their initial liquidity plus the flashloan, and be able to return the flash loan is: 1:5. 
 
-The max theoretical leverage for a short trade trade using the liquidity of Aave V3 is 4x. The reason for this is that if the maximum ratio of the user’s initial liquidity and the maximum a user can borrow from Aave using their initial liquidity and still be able to return the flash loan is 1:4. 
+The max theoretical leverage for a short trade trade using the liquidity of Aave V3 is 4x. The reason for this is that the maximum ratio of the user’s initial liquidity, and the maximum a user can borrow from Aave using their initial liquidity plus the flashloan, and be able to return the flash loan is: 1:4.
 
 *The formula above does not include the 0.09% fee for flash loans and interest payments from Aave V3, nor the 0.05% or 0.3% fee for swaps on Uniswap (depending on the pool used).*
 
@@ -76,5 +69,3 @@ print("total deposit in Aave:", totalDeposit)
 print("loan to collateral ratio (must be < 0.8):", loanToCollateralRatio) 
 print("loan to base ratio:", flashToBaseRatio)
 ```
-
-
