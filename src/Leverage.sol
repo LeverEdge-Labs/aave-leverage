@@ -106,14 +106,31 @@ contract Leverage is Swapper {
         aaveV3.supply(leveragedAsset, totalAmount, address(this), 0);
 
         uint price = getPrice(leveragedAsset, baseAsset);
-        uint borrowAmount = flashloanAmount * price * 1.0039e17 / 1e35;
+        // uint borrowAmount = flashloanAmount * price * 1.0039e17 / 1e35;
+        uint borrowAmount = flashloanAmount * price / 1e18;
+
+        console.log("BEFORE BORROW");
+
+        console.log(borrowAmount);
+        console.log(totalAmount);
 
         aaveV3.borrow(baseAsset, borrowAmount, 2, 0, address(this));
 
         // @dev what to do with amountOut?
         // uint amountOut = swapExactInputSingle(baseAsset, flashloanAsset, borrowAmount);
         // uint amountOut = 
-        swapExactInputSingle(baseAsset, leveragedAsset, borrowAmount);
+
+        uint balance0 = IERC20(baseAsset).balanceOf(address(this));
+
+        // swapExactInputSingle(baseAsset, leveragedAsset, borrowAmount);
+        swapExactOutputSingle(leveragedAsset, baseAsset, flashloanAmount, borrowAmount);
+
+        uint leftOver = balance0 - IERC20(baseAsset).balanceOf(address(this));
+
+        console.log("Amounts Left Over After Open");
+        console.log(leftOver);
+        console.log(IERC20(baseAsset).balanceOf(address(this)));
+        console.log(IERC20(leveragedAsset).balanceOf(address(this)));
     }
 
 
@@ -283,7 +300,8 @@ contract Leverage is Swapper {
 
         if (params.isClose == false) {
             if (params.isLong) {
-                executeLong(assets[0], params.amount, amounts[0], params.nonCollateralAsset);
+                // executeLong(assets[0], params.amount, amounts[0], params.nonCollateralAsset);
+                executeLong(assets[0], params.amount, amounts[0] + premiums[0], params.nonCollateralAsset);
             } else {
                 executeShort(assets[0], amounts[0] + premiums[0], params.amount, params.nonCollateralAsset); 
             }
