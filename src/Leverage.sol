@@ -50,8 +50,8 @@ contract Leverage is Swapper {
 
     IPOOL public aaveV3;
 
-    constructor () {
-        aaveV3 = IPOOL(0x87870Bca3F3fD6335C3F4ce8392D69350B4fA4E2);
+    constructor (address _pool) {
+        aaveV3 = IPOOL(_pool);
     }
 
     function getUserPositions(address user) external view returns (uint numberPositions) {

@@ -20,10 +20,14 @@ contract shortTest is Test {
 
     Leverage leverage;
 
+    address aaveV3_pool = vm.envAddress("AAVEV3_POOL_ETH");
+
+
     function setUp() public {
         ethFork = vm.createSelectFork(ETH_RPC);
-        leverage = new Leverage();
+        leverage = new Leverage(aaveV3_pool);
     }
+
 
     function getUSDC() internal {
         IERC20 usdc = IERC20(USDC);
