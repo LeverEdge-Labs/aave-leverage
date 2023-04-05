@@ -1,4 +1,22 @@
-### **Max Theoretical Leverage for a Long Trade Using Aave V3 (Non-eMode)**
+
+# Algorithmic On-Chain Leverage Trading
+
+
+### **What is this repository?**
+
+The goal of this repository is to make on-chain algorithmic leverage trading possible in a single transaction without an intermediary protocol. Leverage trading protocols already exist such as dYdX and GMX, however, these are order book based exchanges.
+
+### **Who is this for?**
+
+This repository is currently in development, however, this repository will be useful for developers seeking to integrate leveraged long/short functionality into their on-chain protocols or smart contracts. 
+
+### **Why is this cool and necessary?** 
+
+Leverage trading can be achieved by using the flash loan and lending functionality of existing on-chain lending platforms. The ability to short an asset on chain is necessary for building more complex trading strategies such as the replication of an option contract, or to replicate the inverse payoff of impermanent loss of a Uniswap V3 liquidity position.  
+
+### **How does it work?:**
+
+#### **Max Theoretical Leverage for a Long Trade Using Aave V3 (Non-eMode)**
 
 On Aave V3, the max loan-to-collateral ratio is 0.8 or 4/5.
 
