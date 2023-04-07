@@ -77,7 +77,7 @@ contract Leverage is Swapper {
 
         Position memory position = Position(baseAsset, leveragedAsset, amount, leverage, true, flashLoanAmount, false);
         positions[address(0)][msg.sender][ID] = position;
-
+        
         // user, baseAsset, amountBase, isLong, isClose 
         flashloanParams memory flashParams = flashloanParams(
                                                 msg.sender,
@@ -108,15 +108,7 @@ contract Leverage is Swapper {
 
         aaveV3.borrow(baseAsset, borrowAmount, 2, 0, address(this));
 
-        // uint balance0 = IERC20(baseAsset).balanceOf(address(this));
         swapExactInputSingle(baseAsset, leveragedAsset, borrowAmount);
-        //uint leftOver = balance0 - IERC20(baseAsset).balanceOf(address(this));
-
-        console.log("Amounts Left Over After Open");
-        console.log(IERC20(baseAsset).balanceOf(address(this)));
-        console.log(IERC20(leveragedAsset).balanceOf(address(this)));
-
-
     }
 
 
@@ -182,12 +174,6 @@ contract Leverage is Swapper {
         uint flashLoanAmount, 
         address leveragedAsset
     ) private {
-        console.log("HERE");
-
-        console.log(baseAsset);
-        console.log(flashLoanAmount);
-        console.log(liquidityBase);
-
         IERC20(baseAsset).approve(address(aaveV3), liquidityBase);
         aaveV3.supply(baseAsset, liquidityBase, address(this), 0);
 
@@ -198,11 +184,6 @@ contract Leverage is Swapper {
         aaveV3.borrow(leveragedAsset, borrowAmount, 2, 0, address(this));
 
         swapExactInputSingle(leveragedAsset, baseAsset, borrowAmount);
-
-        console.log("Amounts Left Over After Open");
-        console.log(IERC20(baseAsset).balanceOf(address(this)));
-        console.log(IERC20(leveragedAsset).balanceOf(address(this)));
-
     }
 
 
@@ -305,10 +286,11 @@ contract Leverage is Swapper {
         IERC20(assets[0]).approve(address(aaveV3), amounts[0] + premiums[0]);
 
         console.log("END OF EXECUTE OPERATION");
-        console.log(IERC20(params.nonCollateralAsset).balanceOf(address(this)));
         console.log(IERC20(assets[0]).balanceOf(address(this)));
 
         uint leftOver = IERC20(assets[0]).balanceOf(address(this)) - (amounts[0] + premiums[0]);
+        console.log(leftOver);
+        
         IERC20(assets[0]).transfer(msg.sender, leftOver);
 
         return true;
