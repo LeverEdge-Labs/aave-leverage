@@ -37,7 +37,7 @@ contract shortTest is Test {
         vm.prank(user);
         usdc.approve(address(this), balance);
         vm.prank(user);
-        usdc.transfer(address(this), balance);
+        usdc.transfer(address(this), 2000e6);
 
         console.log("Balance USDC");
         console.log(usdc.balanceOf(address(this)));

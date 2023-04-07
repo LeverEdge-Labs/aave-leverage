@@ -37,7 +37,7 @@ contract longTest is Test {
         vm.prank(user);
         weth.approve(address(this), balance);
         vm.prank(user);
-        weth.transfer(address(this), balance);
+        weth.transfer(address(this), 1e18);
 
         console.log("Balance WETH");
         console.log(weth.balanceOf(address(this)));

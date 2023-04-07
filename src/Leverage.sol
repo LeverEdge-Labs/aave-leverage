@@ -129,10 +129,16 @@ contract Leverage is Swapper {
             uint balance_t1 = IERC20(positionParams.leveragedAsset).balanceOf(address(this));
 
             swapAmount = balance_t1 - balance_t0;
+
+            console.log("swapamount");
+            console.log(swapAmount);
         }
         // swap leveraged asset for base
         uint amountOut = swapExactInputSingle(positionParams.leveragedAsset, positionParams.baseAsset, swapAmount);
         uint userDebit = amountOut - loanAmount;
+
+        console.log("userDebit");
+        console.log(userDebit);
 
         IERC20(positionParams.baseAsset).transfer(flashParams.user, userDebit);
     }
