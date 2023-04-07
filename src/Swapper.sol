@@ -25,7 +25,7 @@ contract Swapper {
         .ExactInputSingleParams({
             tokenIn: token0,
             tokenOut: token1,
-            fee: 3000,
+            fee: 500,
             recipient: address(this),
             deadline: block.timestamp,
             amountIn: amountIn,
@@ -42,7 +42,7 @@ contract Swapper {
             .ExactOutputSingleParams({
                 tokenIn: token0,
                 tokenOut: token1,
-                fee: 3000,
+                fee: 500,
                 recipient: address(this),
                 deadline: block.timestamp,
                 amountOut: amountOut,

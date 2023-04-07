@@ -37,7 +37,6 @@ contract Leverage is Swapper {
         address user;
         address nonCollateralAsset;
         uint amount;
-        UD60x18 leverage;
         bool isLong;
         bool isClose;
     }
@@ -79,17 +78,16 @@ contract Leverage is Swapper {
         Position memory position = Position(baseAsset, leveragedAsset, amount, leverage, true, flashLoanAmount, false);
         positions[address(0)][msg.sender][ID] = position;
 
-        // user, baseAsset, amountBase, leverage, isLong, isClose 
-        // @dev is leverage needed in params?
+        // user, baseAsset, amountBase, isLong, isClose 
         flashloanParams memory flashParams = flashloanParams(
                                                 msg.sender,
                                                 baseAsset,
                                                 (amount + flashLoanAmount),
-                                                leverage,
                                                 true,
                                                 false);
 
         bytes memory params = abi.encode(flashParams);
+        
         getflashloan(leveragedAsset, flashLoanAmount, params);
         return true;
     }
@@ -99,32 +97,20 @@ contract Leverage is Swapper {
     function executeLong(
         address leveragedAsset,
         uint totalAmount,
-        uint flashloanAmount,
+        uint flashLoanAmount,
         address baseAsset
     ) private {
         IERC20(leveragedAsset).approve(address(aaveV3), totalAmount);
         aaveV3.supply(leveragedAsset, totalAmount, address(this), 0);
 
         uint price = getPrice(leveragedAsset, baseAsset);
-        // uint borrowAmount = flashloanAmount * price * 1.0039e17 / 1e35;
-        uint borrowAmount = flashloanAmount * price / 1e18;
-
-        console.log("BEFORE BORROW");
-
-        console.log(borrowAmount);
-        console.log(totalAmount);
+        uint borrowAmount = flashLoanAmount * price * 1.001e17 / 1e35;
+        // uint borrowAmount = flashLoanAmount * price * 1e18 / 1e35;
 
         aaveV3.borrow(baseAsset, borrowAmount, 2, 0, address(this));
 
-        // @dev what to do with amountOut?
-        // uint amountOut = swapExactInputSingle(baseAsset, flashloanAsset, borrowAmount);
-        // uint amountOut = 
-
         uint balance0 = IERC20(baseAsset).balanceOf(address(this));
-
-        // swapExactInputSingle(baseAsset, leveragedAsset, borrowAmount);
-        swapExactOutputSingle(leveragedAsset, baseAsset, flashloanAmount, borrowAmount);
-
+        swapExactInputSingle(baseAsset, leveragedAsset, borrowAmount);
         uint leftOver = balance0 - IERC20(baseAsset).balanceOf(address(this));
 
         console.log("Amounts Left Over After Open");
@@ -180,7 +166,6 @@ contract Leverage is Swapper {
                                                 msg.sender,
                                                 leveragedAsset,
                                                 (amountBase + flashLoanAmount),
-                                                leverage,
                                                 false,
                                                 false);
 
@@ -265,7 +250,7 @@ contract Leverage is Swapper {
             flashLoanAmount = totalDebtBase * 1.05e16 / price;
         }
         // @dev 0 because leverage is not needed for closing position
-        flashloanParams memory flashParams = flashloanParams(msg.sender, flashloanAsset, flashLoanAmount, ud(0), pos_params.isLong, true);
+        flashloanParams memory flashParams = flashloanParams(msg.sender, flashloanAsset, flashLoanAmount, pos_params.isLong, true);
         bytes memory params = abi.encode(flashParams);
         getflashloan(flashloanAsset, flashLoanAmount, params);
         return true;

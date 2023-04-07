@@ -31,7 +31,7 @@ contract longTest is Test {
     // @dev Helper functions
     function getWETH() internal {
         IERC20 weth = IERC20(WETH);
-        address user = 0xE831C8903de820137c13681E78A5780afDdf7697;
+        address user = 0x2fEb1512183545f48f6b9C5b4EbfCaF49CfCa6F3;
         uint balance = weth.balanceOf(user);
         assert(balance > 0);
         vm.prank(user);
