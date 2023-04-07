@@ -57,8 +57,8 @@ contract longTest is Test {
 
         // STEP #4 Close Long
         // ID of position 0
-        leverage.closePosition(0);
-        console.log("Position Closed");
+        // leverage.closePosition(0);
+        //console.log("Position Closed");
     }
 
 

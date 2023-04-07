@@ -99,24 +99,24 @@ contract Leverage is Swapper {
         uint totalAmount,
         uint flashLoanAmount,
         address baseAsset
-    ) private {
+    ) private  {
         IERC20(leveragedAsset).approve(address(aaveV3), totalAmount);
         aaveV3.supply(leveragedAsset, totalAmount, address(this), 0);
 
         uint price = getPrice(leveragedAsset, baseAsset);
-        uint borrowAmount = flashLoanAmount * price * 1.001e17 / 1e35;
-        // uint borrowAmount = flashLoanAmount * price * 1e18 / 1e35;
+        uint borrowAmount = flashLoanAmount * price * 1.005e17 / 1e35;
 
         aaveV3.borrow(baseAsset, borrowAmount, 2, 0, address(this));
 
-        uint balance0 = IERC20(baseAsset).balanceOf(address(this));
+        // uint balance0 = IERC20(baseAsset).balanceOf(address(this));
         swapExactInputSingle(baseAsset, leveragedAsset, borrowAmount);
-        uint leftOver = balance0 - IERC20(baseAsset).balanceOf(address(this));
+        //uint leftOver = balance0 - IERC20(baseAsset).balanceOf(address(this));
 
         console.log("Amounts Left Over After Open");
-        console.log(leftOver);
         console.log(IERC20(baseAsset).balanceOf(address(this)));
         console.log(IERC20(leveragedAsset).balanceOf(address(this)));
+
+
     }
 
 
@@ -178,10 +178,16 @@ contract Leverage is Swapper {
 
     function executeShort(
         address baseAsset,
-        uint flashLoanAmount,
-        uint liquidityBase, 
+        uint liquidityBase,
+        uint flashLoanAmount, 
         address leveragedAsset
     ) private {
+        console.log("HERE");
+
+        console.log(baseAsset);
+        console.log(flashLoanAmount);
+        console.log(liquidityBase);
+
         IERC20(baseAsset).approve(address(aaveV3), liquidityBase);
         aaveV3.supply(baseAsset, liquidityBase, address(this), 0);
 
@@ -191,8 +197,12 @@ contract Leverage is Swapper {
 
         aaveV3.borrow(leveragedAsset, borrowAmount, 2, 0, address(this));
 
-        // uint amountOut = swapExactInputSingle(leveragedAsset, baseAsset, borrowAmount);
         swapExactInputSingle(leveragedAsset, baseAsset, borrowAmount);
+
+        console.log("Amounts Left Over After Open");
+        console.log(IERC20(baseAsset).balanceOf(address(this)));
+        console.log(IERC20(leveragedAsset).balanceOf(address(this)));
+
     }
 
 
@@ -231,10 +241,6 @@ contract Leverage is Swapper {
 
         ( , uint totalDebtBase, , , , ) = aaveV3.getUserAccountData(address(this));
 
-        // flashloan amount is different for if long or short
-        // @dev for long
-        // uint flashLoanAmount = totalCollateralBase - totalDebtBase;
-
         address flashloanAsset;
         uint flashLoanAmount;
         // this is only for USDC and WETH (1e6, 1e18)
@@ -242,7 +248,6 @@ contract Leverage is Swapper {
             flashloanAsset = pos_params.baseAsset;
 
             flashLoanAmount = totalDebtBase / 1e2 * 1.05e18 / 1e18; // Fixes revert with error 35 (1.0005e18)
-            // flashLoanAmount = totalDebtBase / 1e2; // sometimes reverts with error 35
             //console.log(flashLoanAmount);
         } else {
             flashloanAsset = pos_params.leveragedAsset;
@@ -285,10 +290,9 @@ contract Leverage is Swapper {
 
         if (params.isClose == false) {
             if (params.isLong) {
-                // executeLong(assets[0], params.amount, amounts[0], params.nonCollateralAsset);
                 executeLong(assets[0], params.amount, amounts[0] + premiums[0], params.nonCollateralAsset);
             } else {
-                executeShort(assets[0], amounts[0] + premiums[0], params.amount, params.nonCollateralAsset); 
+                executeShort(assets[0], params.amount, amounts[0] + premiums[0], params.nonCollateralAsset); 
             }
         } else {
             if (params.isLong) {
@@ -297,10 +301,16 @@ contract Leverage is Swapper {
                 executeCloseShort(params, amounts[0], amounts[0] + premiums[0]);
             }
         }
-        console.log("END of flashloan");
-        console.log(amounts[0] + premiums[0]);
 
         IERC20(assets[0]).approve(address(aaveV3), amounts[0] + premiums[0]);
+
+        console.log("END OF EXECUTE OPERATION");
+        console.log(IERC20(params.nonCollateralAsset).balanceOf(address(this)));
+        console.log(IERC20(assets[0]).balanceOf(address(this)));
+
+        uint leftOver = IERC20(assets[0]).balanceOf(address(this)) - (amounts[0] + premiums[0]);
+        IERC20(assets[0]).transfer(msg.sender, leftOver);
+
         return true;
     }
 
