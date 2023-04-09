@@ -58,8 +58,8 @@ contract Leverage is Swapper {
     }
 
     /// @notice Intiate long function
-    /// @param baseAsset stable asset
-    /// @param leveragedAsset leveraged asset 
+    /// @param baseAsset address stable asset
+    /// @param leveragedAsset address leveraged asset 
     /// @param amount amount of leveraged asset
     /// @param leverage amount in UD60x18 format (1<x<5)
     function long(
@@ -80,11 +80,12 @@ contract Leverage is Swapper {
         
         // user, baseAsset, amountBase, isLong, isClose 
         flashloanParams memory flashParams = flashloanParams(
-                                                msg.sender,
-                                                baseAsset,
-                                                (amount + flashLoanAmount),
-                                                true,
-                                                false);
+            msg.sender,
+            baseAsset,
+            (amount + flashLoanAmount),
+            true,
+            false
+        );
 
         bytes memory params = abi.encode(flashParams);
         
@@ -93,7 +94,11 @@ contract Leverage is Swapper {
     }
 
 
-
+    /// @notice Execute long function
+    /// @param leveragedAsset leveraged asset
+    /// @param totalAmount total amount of asset  
+    /// @param flashLoanAmount flash loan amount
+    /// @param baseAsset address of base asset
     function executeLong(
         address leveragedAsset,
         uint totalAmount,
@@ -138,7 +143,11 @@ contract Leverage is Swapper {
         IERC20(positionParams.baseAsset).transfer(flashParams.user, userDebit);
     }
 
-
+    /// @notice Initate short function
+    /// @param baseAsset address stable asset
+    /// @param leveragedAsset address leveraged asset 
+    /// @param amountBase amount of base asset
+    /// @param leverage amount in UD60x18 format (1<x<5)
     function short(
         address baseAsset,
         address leveragedAsset,
@@ -156,11 +165,12 @@ contract Leverage is Swapper {
         positions[address(0)][msg.sender][ID] = position;
 
         flashloanParams memory flashParams = flashloanParams(
-                                                msg.sender,
-                                                leveragedAsset,
-                                                (amountBase + flashLoanAmount),
-                                                false,
-                                                false);
+            msg.sender,
+            leveragedAsset,
+            (amountBase + flashLoanAmount),
+            false,
+            false
+        );
 
         bytes memory params = abi.encode(flashParams);
 
@@ -168,7 +178,11 @@ contract Leverage is Swapper {
         return true;
     }
 
-
+    /// @notice execute short function
+    /// @param baseAsset stable asset
+    /// @param leveragedAsset amount liquidity of base asset 
+    /// @param flashLoanAmount flash loan amount
+    /// @param leveragedAsset address leveragedAsset
     function executeShort(
         address baseAsset,
         uint liquidityBase,
