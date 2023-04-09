@@ -51,6 +51,10 @@ contract shortTest is Test {
         // STEP #2 Approve leverage
         IERC20(USDC).approve(address(leverage), type(uint).max);
 
+        uint bal0 = IERC20(USDC).balanceOf(address(this));
+        console.log(bal0);
+        console.log("HERE@");
+
         // STEP #3 Open Short
         // USDC WETH 2000 USDC 2x short
         leverage.short(USDC, WETH, 2000e6, ud(2e18));

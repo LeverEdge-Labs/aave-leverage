@@ -109,6 +109,7 @@ contract Leverage is Swapper {
         aaveV3.borrow(baseAsset, borrowAmount, 2, 0, address(this));
 
         swapExactInputSingle(baseAsset, leveragedAsset, borrowAmount);
+
     }
 
 
@@ -129,16 +130,10 @@ contract Leverage is Swapper {
             uint balance_t1 = IERC20(positionParams.leveragedAsset).balanceOf(address(this));
 
             swapAmount = balance_t1 - balance_t0;
-
-            console.log("swapamount");
-            console.log(swapAmount);
         }
         // swap leveraged asset for base
         uint amountOut = swapExactInputSingle(positionParams.leveragedAsset, positionParams.baseAsset, swapAmount);
         uint userDebit = amountOut - loanAmount;
-
-        console.log("userDebit");
-        console.log(userDebit);
 
         IERC20(positionParams.baseAsset).transfer(flashParams.user, userDebit);
     }
@@ -234,8 +229,8 @@ contract Leverage is Swapper {
         if (pos_params.isLong == true) {
             flashloanAsset = pos_params.baseAsset;
 
-            flashLoanAmount = totalDebtBase / 1e2 * 1.05e18 / 1e18; // Fixes revert with error 35 (1.0005e18)
-            //console.log(flashLoanAmount);
+            flashLoanAmount = totalDebtBase / 1e2 * 1.00009e18 / 1e18; // 0% FL would get rid of this 1.00009 constant
+
         } else {
             flashloanAsset = pos_params.leveragedAsset;
             uint price = getPrice(flashloanAsset, pos_params.baseAsset);
@@ -289,13 +284,12 @@ contract Leverage is Swapper {
             }
         }
 
+        // repay flashloan to Aave
         IERC20(assets[0]).approve(address(aaveV3), amounts[0] + premiums[0]);
 
-        console.log("END OF EXECUTE OPERATION");
-        console.log(IERC20(assets[0]).balanceOf(address(this)));
-
+        // Calculate discrepancy of debt vs current balance
+        // @dev if there is a balance in this contract, it will be sent to msg.sender...  
         uint leftOver = IERC20(assets[0]).balanceOf(address(this)) - (amounts[0] + premiums[0]);
-        console.log(leftOver);
         
         IERC20(assets[0]).transfer(msg.sender, leftOver);
 

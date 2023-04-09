@@ -39,12 +39,15 @@ contract longTest is Test {
         vm.prank(user);
         weth.transfer(address(this), 1e18);
 
-        console.log("Balance WETH");
-        console.log(weth.balanceOf(address(this)));
+        // console.log("Balance WETH");
+        // console.log(weth.balanceOf(address(this)));
     }
 
 
     function testOpenLong() public {
+        // 2x WETH USDC 
+        // User transfers 1 WETH and has 2 WETH deposited on Aave
+
         // STEP #1 Get WETH
         getWETH();
 
@@ -60,10 +63,10 @@ contract longTest is Test {
         leverage.closePosition(0);
         console.log("Position Closed");
 
+        console.log("balance USDC");
         console.log(IERC20(USDC).balanceOf(address(this)));
+        console.log("balance WETH");
         console.log(IERC20(WETH).balanceOf(address(this)));
-
     }
-
 
 }
