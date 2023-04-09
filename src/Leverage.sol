@@ -147,7 +147,7 @@ contract Leverage is Swapper {
     ) external returns (bool) {
         IERC20(baseAsset).transferFrom(msg.sender, address(this), amountBase);
 
-        uint flashLoanAmount = unwrap(ud(amountBase).mul(leverage));
+        uint flashLoanAmount = unwrap((ud(amountBase).mul(leverage)).sub(ud(amountBase)));
 
         uint ID = IDs[msg.sender].length;
         IDs[msg.sender].push(ID);
@@ -180,11 +180,16 @@ contract Leverage is Swapper {
 
         uint price = getPrice(leveragedAsset, baseAsset);
         uint decimals = IERC20Metadata(leveragedAsset).decimals() - IERC20Metadata(baseAsset).decimals();
-        uint borrowAmount = (((flashLoanAmount * 10**decimals) / price) * 1.00433e18) / (10**decimals);
+        
+        // the 1.00333 constant depends on the amount of liquidity @ price on uniV3
+        // more liquidity @ price => smaller constant
+        // need to use swapExactOutput....
+        uint borrowAmount = (((flashLoanAmount * 10**decimals) / price) * 1.0033e18) / (10**decimals);
 
         aaveV3.borrow(leveragedAsset, borrowAmount, 2, 0, address(this));
 
         swapExactInputSingle(leveragedAsset, baseAsset, borrowAmount);
+
     }
 
 
@@ -234,7 +239,7 @@ contract Leverage is Swapper {
         } else {
             flashloanAsset = pos_params.leveragedAsset;
             uint price = getPrice(flashloanAsset, pos_params.baseAsset);
-            flashLoanAmount = totalDebtBase * 1.05e16 / price;
+            flashLoanAmount = totalDebtBase * 1.00009e16 / price; // this constant is because of FL fees
         }
         // @dev 0 because leverage is not needed for closing position
         flashloanParams memory flashParams = flashloanParams(msg.sender, flashloanAsset, flashLoanAmount, pos_params.isLong, true);
@@ -284,11 +289,17 @@ contract Leverage is Swapper {
             }
         }
 
+        console.log("END OF EXECUTE OPERATION");
+        console.log("FL DEBT AMOUNT");
+        console.log(amounts[0] + premiums[0]);
+
         // repay flashloan to Aave
         IERC20(assets[0]).approve(address(aaveV3), amounts[0] + premiums[0]);
 
         // Calculate discrepancy of debt vs current balance
-        // @dev if there is a balance in this contract, it will be sent to msg.sender...  
+        // @dev if there is a balance in this contract, it will be sent to msg.sender.
+        // @dev if this underflows it means it wasn't a profitable trade
+        // @dev is there a better way?
         uint leftOver = IERC20(assets[0]).balanceOf(address(this)) - (amounts[0] + premiums[0]);
         
         IERC20(assets[0]).transfer(msg.sender, leftOver);
@@ -314,7 +325,6 @@ contract Leverage is Swapper {
         console.logUint(ltv);
         console.logUint(healthFactor);
     }
-
 
 
 

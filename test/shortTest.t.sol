@@ -45,15 +45,15 @@ contract shortTest is Test {
 
 
     function testOpenShort() public {
-        // STEP #1 Get WETH
+        // STEP #1 Get USDC 
         getUSDC();
 
         // STEP #2 Approve leverage
         IERC20(USDC).approve(address(leverage), type(uint).max);
 
         uint bal0 = IERC20(USDC).balanceOf(address(this));
+        console.log("USDC BAL");
         console.log(bal0);
-        console.log("HERE@");
 
         // STEP #3 Open Short
         // USDC WETH 2000 USDC 2x short
@@ -63,8 +63,10 @@ contract shortTest is Test {
         // ID of position 0
         leverage.closePosition(0);
         console.log("Position Closed");
-
+        
+        console.log("balance USDC");
         console.log(IERC20(USDC).balanceOf(address(this)));
+        console.log("balance WETH");
         console.log(IERC20(WETH).balanceOf(address(this)));
     }
 
