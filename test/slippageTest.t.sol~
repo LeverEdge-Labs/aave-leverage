@@ -1,0 +1,93 @@
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.19;
+
+// forge std
+import "forge-std/console.sol";
+import "forge-std/Test.sol";
+
+// prb-math v3
+import { SD59x18, sd } from "@prb/math/SD59x18.sol";
+import { UD60x18, ud, unwrap } from "@prb/math/UD60x18.sol";
+
+import "src/Swapper.sol";
+
+contract slippageTest is Swapper, Test {
+    uint ethFork;
+    string ETH_RPC = vm.envString("ETH_RPC");
+
+    address WETH = vm.envAddress("WETH_ETH");
+    address USDC = vm.envAddress("USDC_ETH");
+
+
+    address aaveV3_pool = vm.envAddress("AAVEV3_POOL_ETH");
+
+
+    function setUp() public {
+        ethFork = vm.createSelectFork(ETH_RPC);
+    }
+
+
+    // @dev Helper functions
+    function getWETH() internal {
+        IERC20 weth = IERC20(WETH);
+        address user = 0x2fEb1512183545f48f6b9C5b4EbfCaF49CfCa6F3;
+        uint balance = weth.balanceOf(user);
+        assert(balance > 0);
+        vm.prank(user);
+        weth.approve(address(this), balance);
+        vm.prank(user);
+        weth.transfer(address(this), 1e18);
+
+    }
+
+
+    function getUSDC() internal {
+        IERC20 usdc = IERC20(USDC);
+        address user = 0x203520F4ec42Ea39b03F62B20e20Cf17DB5fdfA7;
+        uint balance = usdc.balanceOf(user);
+        assert(balance > 0);
+        vm.prank(user);
+        usdc.approve(address(this), balance);
+        vm.prank(user);
+        usdc.transfer(address(this), 2000e6);
+
+        console.log("Balance USDC");
+        console.log(usdc.balanceOf(address(this)));
+    }
+
+
+    function testSlippageExactInputSingle() public {
+        getWETH();
+
+        uint price = getPrice(WETH, USDC);
+
+        console.log("price");
+        console.log(price);
+
+        uint amountOut = swapExactInputSingle(WETH, USDC, 1e18);
+
+        console.log("balance USDC");
+        console.log(IERC20(USDC).balanceOf(address(this)));
+        console.log("balance WETH");
+        console.log(IERC20(WETH).balanceOf(address(this)));
+    }
+
+    // failing
+    function testSlippageExactOutputSingle() public {
+        getWETH();
+
+        uint price = getPrice(WETH, USDC);
+
+        console.log("price");
+        console.log(price);
+
+        // token0, token1, amountOut, maxAmountIn
+        (uint amountOut, uint leftOver) = swapExactOutputSingle(WETH, USDC, price, 99e16);
+
+        console.log("balance USDC");
+        console.log(IERC20(USDC).balanceOf(address(this)));
+        console.log("balance WETH");
+        console.log(IERC20(WETH).balanceOf(address(this)));
+    }
+
+}

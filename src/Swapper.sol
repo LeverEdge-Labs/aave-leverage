@@ -12,6 +12,8 @@ import "@uniswap/v3-periphery/contracts/interfaces/ISwapRouter.sol";
 // openzeppelin safeTransfer
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 
+import "forge-std/console.sol";
+import "forge-std/Test.sol";
 
 contract Swapper {
     IUniswapV3Factory public constant v3Factory = IUniswapV3Factory(0x1F98431c8aD98523631AE4a59f267346ea31F984);
@@ -50,7 +52,9 @@ contract Swapper {
                 sqrtPriceLimitX96: 0 // getSqrtPriceLimitX96(getPrice(token0, token1))
             });
 
+        console.log("HERE");
         amountIn = swapRouter.exactOutputSingle(params);
+        console.log("HERE1");
 
         if (amountIn < amountInMaximum) {
             // Reset approval on router
