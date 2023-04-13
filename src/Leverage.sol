@@ -248,12 +248,12 @@ contract Leverage is Swapper {
         if (pos_params.isLong == true) {
             flashloanAsset = pos_params.baseAsset;
 
-            flashLoanAmount = totalDebtBase / 1e2 * 1.00009e18 / 1e18; // 0% FL would get rid of this 1.00009 constant
+            flashLoanAmount = totalDebtBase / 1e2 * 1.009e18 / 1e18; // IF ERROR 35 => increase this constant
 
         } else {
             flashloanAsset = pos_params.leveragedAsset;
             uint price = getPrice(flashloanAsset, pos_params.baseAsset);
-            flashLoanAmount = totalDebtBase * 1.00009e16 / price; // this constant is because of FL fees
+            flashLoanAmount = totalDebtBase * 1.009e16 / price; // IF ERROR 35 => increase this constant
         }
         // @dev 0 because leverage is not needed for closing position
         flashloanParams memory flashParams = flashloanParams(msg.sender, flashloanAsset, flashLoanAmount, pos_params.isLong, true);
