@@ -50,40 +50,20 @@ The max theoretical leverage for a short trade trade using the liquidity of Aave
 
 *The formula above does not include the 0.09% fee for flash loans and interest payments from Aave V3, nor the 0.05% or 0.3% fee for swaps on Uniswap (depending on the pool used).*
 
-Below is a python3 code snippet to further explain the maximum leverage for a long and short trade using the liquidity of Aave V3
 
-```python
-# Long Trade
-baseCollateral = 1000
-leverage = 5
 
-flashLoanAmount = baseCollateral * (leverage - 1)
-totalDeposit = baseCollateral + flashLoanAmount
 
-loanToCollateralRatio = flashLoanAmount / totalDeposit
-flashToBaseRatio = flashLoanAmount / baseCollateral
-
-print("flash loan amount in contract:", flashLoanAmount) 
-print("total deposit in Aave:", totalDeposit)
-
-print("loan to collateral ratio (must be < 0.8):", loanToCollateralRatio) 
-print("loan to base ratio:", flashToBaseRatio)
+## Testing
+####
+```sh
+forge test -vv
 ```
 
-```python
-# Short Trade
-baseCollateral = 1000
-leverage = 4
+#### Testing on localhost 
+```sh
+anvil --fork-url https://eth-rpc.gateway.pokt.network
+```
 
-flashLoanAmount = baseCollateral * leverage
-totalDeposit = baseCollateral + flashLoanAmount
-
-loanToCollateralRatio = flashLoanAmount / totalDeposit
-flashToBaseRatio = flashLoanAmount / baseCollateral
-
-print("flash loan amount in contract:", flashLoanAmount) 
-print("total deposit in Aave:", totalDeposit)
-
-print("loan to collateral ratio (must be < 0.8):", loanToCollateralRatio) 
-print("loan to base ratio:", flashToBaseRatio)
+```sh
+forge test --fork-url http://127.0.0.1:8545/
 ```
