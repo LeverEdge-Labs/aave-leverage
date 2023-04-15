@@ -14,12 +14,9 @@ contract getTokens is Test {
 
 
     function run() public {
-
         deal(address(USDC), 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266, 10_000e6, true);
 
-
         console.log(IERC20(USDC).balanceOf(0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266));
-
     }
 
 }

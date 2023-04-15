@@ -47,13 +47,10 @@ contract getTokens is Test {
         getWETH();
         getUSDC();
 
-
         IERC20(WETH).transfer(0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266, 10e18);
         IERC20(USDC).transfer(0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266, 10000e6);
 
-
         console.log(IERC20(WETH).balanceOf(0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266));
-
     }
 
 }
