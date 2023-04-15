@@ -61,7 +61,7 @@ forge test -vv
 
 #### Testing on localhost 
 ```sh
-anvil --fork-url https://eth-rpc.gateway.pokt.network
+anvil --fork-url https://eth.llamarpc.com --block-time 2
 ```
 
 ```sh
