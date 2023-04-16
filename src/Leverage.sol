@@ -57,6 +57,19 @@ contract Leverage is Swapper {
         return IDs[user].length;
     }
 
+
+    /// @dev fl constant testing purposes only
+    uint openFlashConstant = 1.0033e18;
+    uint closeFlashConstant = 1.009e16;
+
+    function updateFlashConstant(uint _openFlashConstant, uint _closeFlashConstant) public returns (bool) {
+        openFlashConstant = _openFlashConstant;
+        closeFlashConstant = _closeFlashConstant;
+
+        return true;
+    } 
+
+
     /// @notice Intiate long function
     /// @param baseAsset address stable asset
     /// @param leveragedAsset address leveraged asset 
@@ -109,12 +122,11 @@ contract Leverage is Swapper {
         aaveV3.supply(leveragedAsset, totalAmount, address(this), 0);
 
         uint price = getPrice(leveragedAsset, baseAsset);
-        uint borrowAmount = flashLoanAmount * price * 1.005e17 / 1e35;
+        uint borrowAmount = flashLoanAmount * price * openFlashConstant / 1e36;
 
         aaveV3.borrow(baseAsset, borrowAmount, 2, 0, address(this));
 
         swapExactInputSingle(baseAsset, leveragedAsset, borrowAmount);
-
     }
 
 
@@ -198,12 +210,11 @@ contract Leverage is Swapper {
         // the 1.00333 constant depends on the amount of liquidity @ price on uniV3
         // more liquidity @ price => smaller constant
         // need to use swapExactOutput....
-        uint borrowAmount = (((flashLoanAmount * 10**decimals) / price) * 1.0033e18) / (10**decimals);
+        uint borrowAmount = (((flashLoanAmount * 10**decimals) / price) * openFlashConstant) / (10**decimals);
 
         aaveV3.borrow(leveragedAsset, borrowAmount, 2, 0, address(this));
 
         swapExactInputSingle(leveragedAsset, baseAsset, borrowAmount);
-
     }
 
 
@@ -226,7 +237,6 @@ contract Leverage is Swapper {
         }
         // swap leveraged asset for base
         uint amountOut = swapExactInputSingle(positionParams.baseAsset, positionParams.leveragedAsset, swapAmount);
-
         uint userDebit = amountOut - loanAmount;
 
         IERC20(positionParams.leveragedAsset).transfer(flashParams.user, userDebit);
@@ -247,13 +257,11 @@ contract Leverage is Swapper {
         // this is only for USDC and WETH (1e6, 1e18)
         if (pos_params.isLong == true) {
             flashloanAsset = pos_params.baseAsset;
-
-            flashLoanAmount = totalDebtBase / 1e2 * 1.009e18 / 1e18; // IF ERROR 35 => increase this constant
-
+            flashLoanAmount = totalDebtBase * closeFlashConstant / 1e18; // IF ERROR 35 => increase this constant
         } else {
             flashloanAsset = pos_params.leveragedAsset;
             uint price = getPrice(flashloanAsset, pos_params.baseAsset);
-            flashLoanAmount = totalDebtBase * 1.009e16 / price; // IF ERROR 35 => increase this constant
+            flashLoanAmount = totalDebtBase * closeFlashConstant / price; // IF ERROR 35 => increase this constant
         }
         // @dev 0 because leverage is not needed for closing position
         flashloanParams memory flashParams = flashloanParams(msg.sender, flashloanAsset, flashLoanAmount, pos_params.isLong, true);
@@ -306,6 +314,7 @@ contract Leverage is Swapper {
         console.log("END OF EXECUTE OPERATION");
         console.log("FL DEBT AMOUNT");
         console.log(amounts[0] + premiums[0]);
+        console.log(IERC20(assets[0]).balanceOf(address(this)));
 
         // repay flashloan to Aave
         IERC20(assets[0]).approve(address(aaveV3), amounts[0] + premiums[0]);
