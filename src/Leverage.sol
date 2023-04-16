@@ -59,7 +59,11 @@ contract Leverage is Swapper {
 
 
     /// @dev fl constant testing purposes only
-    uint openFlashConstant = 1.0033e18;
+    // Mainnet values 
+    // uint openFlashConstant = 1.0033e18;
+    // uint closeFlashConstant = 1.009e16;
+
+    uint openFlashConstant = 1.0003e18;
     uint closeFlashConstant = 1.009e16;
 
     function updateFlashConstant(uint _openFlashConstant, uint _closeFlashConstant) public returns (bool) {
@@ -210,9 +214,20 @@ contract Leverage is Swapper {
         // the 1.00333 constant depends on the amount of liquidity @ price on uniV3
         // more liquidity @ price => smaller constant
         // need to use swapExactOutput....
+
+        console.log("PRICE");
+        console.log(price);
+
         uint borrowAmount = (((flashLoanAmount * 10**decimals) / price) * openFlashConstant) / (10**decimals);
 
+        console.log(borrowAmount);
+
+        console.log("view account data");
+        viewAccountData();
+        
         aaveV3.borrow(leveragedAsset, borrowAmount, 2, 0, address(this));
+
+        console.log("post borrow");
 
         swapExactInputSingle(leveragedAsset, baseAsset, borrowAmount);
     }
