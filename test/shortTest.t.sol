@@ -38,9 +38,6 @@ contract shortTest is Test {
         usdc.approve(address(this), balance);
         vm.prank(user);
         usdc.transfer(address(this), 2000e6);
-
-        console.log("Balance USDC");
-        console.log(usdc.balanceOf(address(this)));
     }
 
 
@@ -50,10 +47,6 @@ contract shortTest is Test {
 
         // STEP #2 Approve leverage
         IERC20(USDC).approve(address(leverage), type(uint).max);
-
-        uint bal0 = IERC20(USDC).balanceOf(address(this));
-        console.log("USDC BAL");
-        console.log(bal0);
 
         // STEP #3 Open Short
         // USDC WETH 2000 USDC 2x short
