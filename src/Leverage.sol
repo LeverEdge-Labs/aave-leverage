@@ -41,6 +41,9 @@ contract Leverage is Swapper {
         bool isClose;
     }
 
+    // deployer address == owner
+    address public owner;
+
     // address pair v1core => address user => ID => Position
     mapping(address => mapping(address => mapping(uint => Position))) public positions;
 
@@ -51,6 +54,7 @@ contract Leverage is Swapper {
 
     constructor (address _pool) {
         aaveV3 = IPOOL(_pool);
+        owner == msg.sender;
     }
 
     function getUserPositions(address user) external view returns (uint numberPositions) {
@@ -63,7 +67,7 @@ contract Leverage is Swapper {
     // uint openFlashConstant = 1.0033e18;
     // uint closeFlashConstant = 1.009e16;
 
-    uint openFlashConstant = 1.0003e18;
+    uint openFlashConstant = 1.003e18;
     uint closeFlashConstant = 1.009e16;
 
     function updateFlashConstant(uint _openFlashConstant, uint _closeFlashConstant) public returns (bool) {
@@ -344,6 +348,14 @@ contract Leverage is Swapper {
 
         return true;
     }
+
+
+    function emergencyWithdraw(address asset) public {
+        require(msg.sender == owner, "Not Owner");
+        
+        uint balance = IERC20(asset).balanceOf(address(this));
+        IERC20(asset).transfer(msg.sender, balance);
+    }  
 
 
 // ##################### VIEW FUNCTIONS ######################

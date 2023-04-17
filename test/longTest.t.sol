@@ -9,7 +9,10 @@ import "forge-std/Test.sol";
 import { SD59x18, sd } from "@prb/math/SD59x18.sol";
 import { UD60x18, ud, unwrap } from "@prb/math/UD60x18.sol";
 
+import "src/Factory.sol";
 import "src/Leverage.sol";
+
+
 
 contract longTest is Test {
     uint ethFork;
@@ -18,13 +21,19 @@ contract longTest is Test {
     address WETH = vm.envAddress("WETH_ETH");
     address USDC = vm.envAddress("USDC_ETH");
 
+    Factory factory;
     Leverage leverage;
 
     address aaveV3_pool = vm.envAddress("AAVEV3_POOL_ETH");
 
     function setUp() public {
         ethFork = vm.createSelectFork(ETH_RPC);
-        leverage = new Leverage(aaveV3_pool);
+
+        // deploy factory
+        factory = new Factory(aaveV3_pool);
+
+        // deploy leverage
+        leverage = Leverage(factory.deployLeverage());
     }
 
 
