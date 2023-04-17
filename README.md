@@ -73,3 +73,8 @@ chmod +x script/getWETHUSDC.sh
 ```sh
 cast call 0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2 "balanceOf(address)(uint256)" 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266 --rpc-url http://localhost:8545
 ```
+
+#### Run Specific Test
+```sh
+forge test --match-path test/longTest.t.sol
+```

@@ -50,9 +50,6 @@ contract slippageTest is Swapper, Test {
         usdc.approve(address(this), balance);
         vm.prank(user);
         usdc.transfer(address(this), 2000e6);
-
-        console.log("Balance USDC");
-        console.log(usdc.balanceOf(address(this)));
     }
 
 
@@ -65,14 +62,23 @@ contract slippageTest is Swapper, Test {
         console.log(price);
 
         uint amountOut = swapExactInputSingle(WETH, USDC, 1e18);
+        uint slippage = unwrap((ud(amountOut).div(ud(price))));
+
+        console.log("Amount Out:");
+        console.log(amountOut);
+
+        console.log("slippage (1e18):");
+        console.log(slippage);
 
         console.log("balance USDC");
         console.log(IERC20(USDC).balanceOf(address(this)));
+        
         console.log("balance WETH");
         console.log(IERC20(WETH).balanceOf(address(this)));
     }
 
-    // failing
+
+/*     // failing
     function testSlippageExactOutputSingle() public {
         getWETH();
 
@@ -89,5 +95,5 @@ contract slippageTest is Swapper, Test {
         console.log("balance WETH");
         console.log(IERC20(WETH).balanceOf(address(this)));
     }
-
+ */
 }

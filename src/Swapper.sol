@@ -37,6 +37,7 @@ contract Swapper {
         amountOut = swapRouter.exactInputSingle(params);
     }
 
+    /* 
     function swapExactOutputSingle(address token0, address token1, uint amountOut, uint amountInMaximum) internal returns (uint amountIn, uint leftOver) {
         SafeERC20.safeApprove(IERC20(token0), address(swapRouter), amountInMaximum);
 
@@ -63,7 +64,7 @@ contract Swapper {
             leftOver = amountInMaximum - amountIn;
         }
     }
-
+    */
     // @dev gets price of token0 in terms of token1 
     function getPrice(address token0, address token1) public view returns (uint) {
         uint price = estimateAmountOut(token0, 1e18, 12, token1);
