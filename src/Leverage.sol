@@ -67,7 +67,7 @@ contract Leverage is Swapper {
     // uint openFlashConstant = 1.0033e18;
     // uint closeFlashConstant = 1.009e16;
 
-    uint openFlashConstant = 1.003e18;
+    uint openFlashConstant = 1.005e18;
     uint closeFlashConstant = 1.009e16;
 
     function updateFlashConstant(uint _openFlashConstant, uint _closeFlashConstant) public returns (bool) {
