@@ -6,11 +6,10 @@ import "@openzeppelin/contracts/token/ERC20/extensions/IERC20Metadata.sol";
 // Leverage
 import "./Leverage.sol"; 
 
-
 // console log
 import "forge-std/console.sol";
 
-/// @title Algorithmic Leverage Trade Builder
+/// @title LeverEdge Factory
 /// @author LeverEdge Labs
 /// @dev This contract is currently in development
 
@@ -33,7 +32,5 @@ contract Factory {
         Leverage leverage = new Leverage(aaveV3);
         leverageContracts[msg.sender] = address(leverage);
     }
-
-
 
 }
