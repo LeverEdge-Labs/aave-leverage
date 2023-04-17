@@ -9,16 +9,16 @@ import "./Leverage.sol";
 // console log
 import "forge-std/console.sol";
 
-/// @title LeverEdge Factory
+/// @title Algorithmic Leverage Trade Builder
 /// @author LeverEdge Labs
 /// @dev This contract is currently in development
 
 contract Factory {
-
+    
     // address user => address leverage contract
     mapping(address => address) leverageContracts;
 
-    address aaveV3;
+    address public aaveV3;
 
     constructor (address _pool) {
         aaveV3 = _pool;
@@ -28,9 +28,20 @@ contract Factory {
         return leverageContracts[user];
     }
 
-    function deployLeverage() external {
+    function isUserPresent(address user) external view returns (bool) {
+        if (leverageContracts[user] != address(0)) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    function deployLeverage() public returns(address) {
         Leverage leverage = new Leverage(aaveV3);
         leverageContracts[msg.sender] = address(leverage);
+        return address(leverage);
     }
+
+
 
 }
