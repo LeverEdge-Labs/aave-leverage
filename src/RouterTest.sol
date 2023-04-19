@@ -65,7 +65,6 @@ contract RouterTest {
 
     mapping(address => address) public UserContracts;
 
-
     constructor(address _leverage) {
         leverage = _leverage;
     }
