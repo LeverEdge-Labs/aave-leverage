@@ -17,7 +17,6 @@ contract LeverageTest {
 
         return true;
     }
-
 }
 
 contract Child {

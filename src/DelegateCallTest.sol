@@ -6,16 +6,23 @@ import "forge-std/console.sol";
 // NOTE: Deploy this contract first
 contract B {
     // NOTE: storage layout must be the same as contract A
+    uint public constant x = 2;
+}
+
+contract C is B {
     uint public num;
     address public sender;
 
     function setVars(uint _num) public returns (uint) {
-        num = _num;
+        num = x * _num;
         sender = msg.sender;
 
         return _num;
     }
+
+
 }
+
 
 contract A {
     uint public num;

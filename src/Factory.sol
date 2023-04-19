@@ -16,32 +16,27 @@ import "forge-std/console.sol";
 contract Factory {
     
     // address user => address leverage contract
-    mapping(address => address) leverageContracts;
+    mapping(address => address) UserPositionContracts;
 
     address public aaveV3;
 
-    constructor (address _pool) {
-        aaveV3 = _pool;
-    }
-
     function getLeverageContractAddress(address user) external view returns (address) {
-        return leverageContracts[user];
+        return UserPositionContracts[user];
     }
 
     function isUserPresent(address user) external view returns (bool) {
-        if (leverageContracts[user] != address(0)) {
+        if (UserPositionContracts[user] != address(0)) {
             return true;
         } else {
             return false;
         }
     }
 
-    function deployLeverage() public returns(address) {
+/*     function deployLeverage() public returns(address) {
         Leverage leverage = new Leverage(aaveV3);
-        leverageContracts[msg.sender] = address(leverage);
+        UserPositionContracts[msg.sender] = address(leverage);
         return address(leverage);
     }
 
-
-
+ */
 }
