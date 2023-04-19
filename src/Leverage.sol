@@ -41,9 +41,6 @@ contract Leverage is Swapper {
         bool isClose;
     }
 
-    // deployer address == owner
-    address public owner;
-
     // address pair v1core => address user => ID => Position
     mapping(address => mapping(address => mapping(uint => Position))) public positions;
 
@@ -52,15 +49,8 @@ contract Leverage is Swapper {
 
     IPOOL public aaveV3;
 
-    constructor (address _pool) {
-        aaveV3 = IPOOL(_pool);
-        owner == msg.sender;
-    }
-
-    function getUserPositions(address user) external view returns (uint numberPositions) {
-        return IDs[user].length;
-    }
-
+    // deployer address == owner
+    address public owner;
 
     /// @dev fl constant testing purposes only
     // Mainnet values 
@@ -75,7 +65,17 @@ contract Leverage is Swapper {
         closeFlashConstant = _closeFlashConstant;
 
         return true;
-    } 
+    }
+
+    
+    constructor (address _pool) {
+        aaveV3 = IPOOL(_pool);
+        owner == msg.sender;
+    }
+
+    function getUserPositions(address user) external view returns (uint numberPositions) {
+        return IDs[user].length;
+    }
 
 
     /// @notice Intiate long function

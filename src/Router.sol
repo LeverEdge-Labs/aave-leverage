@@ -22,8 +22,10 @@ contract Router is Factory {
     // address user => address leverage contract
     // mapping(address => address) leverageContracts;
 
-    constructor (address _pool) {
-        aaveV3 = _pool;
+    address public leverageContract;
+
+    constructor (address _leverageContract) {
+        leverageContract = _leverageContract;
     }
 
 
@@ -32,9 +34,9 @@ contract Router is Factory {
         address leveragedAsset,
         uint amount,
         UD60x18 leverage
-    ) external returns (bool) {
+    ) external {
         if (UserPositionContracts[msg.sender] == address(0)) {
-            UserPositionManager manager = new UserPositionManager(msg.sender, address(this));
+            UserPositionManager manager = new UserPositionManager(leverageContract, address(this), msg.sender);
             UserPositionContracts[msg.sender] = address(manager);
 
             console.log("First Time User calling Router");
@@ -44,8 +46,8 @@ contract Router is Factory {
             
         } else {
             UserPositionManager manager = UserPositionManager(UserPositionContracts[msg.sender]);
-
             manager.long(baseAsset, leveragedAsset, amount, leverage);
         }
+
     }
 }
