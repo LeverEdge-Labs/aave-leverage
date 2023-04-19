@@ -26,13 +26,10 @@ contract deployRouterTest is Test {
     }
  */
     function testCallLongTwice() public {
-        // first time
+        // calling router first time
         router.long(address(0), address(1), 1e18, 1e18);
 
-        console.log(router.UserContracts(address(this)));
-
-        // second time
-        router.long(address(0), address(1), 1e18, 1e18);
-
+        // calling router second time
+        router.long(address(0), address(1), 2e18, 2e18);
     }
 }

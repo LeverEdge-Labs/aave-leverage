@@ -8,14 +8,12 @@ import "forge-std/console.sol";
 
 contract LeverageTest {
 
-    // mapping(address => uint) public Positions;
-    uint public test;
+    mapping(address => uint) public Positions;
     
     function long(address token0, address token1, uint amount, uint leverageAmount) public returns (bool) {
-        console.log("inside leverage test");
+        console.log("Inside LEVERAGE TEST");
 
-        // Positions[token0] = amount;
-        test = amount;
+        Positions[token0] = amount;
 
         return true;
     }
@@ -24,8 +22,7 @@ contract LeverageTest {
 
 contract Child {
 
-    uint public test;
-    // mapping(address => uint) public Positions;
+    mapping(address => uint) public Positions;
 
     address public leverage;
     address public router;
@@ -45,21 +42,19 @@ contract Child {
     function long(address token0, address token1, uint amount, uint leverageAmount) external OnlyRouter returns (bool) {
         // LeverageTest(leverage).long(token0, token1, amount, leverageAmount);
 
-        console.log("INSIDE CHILD");
+        console.log("INSIDE CHILD CONTRACT");
 
         console.log(leverage);
 
-        (bool success, bytes memory data) = leverage.delegatecall(abi.encodeWithSignature("long(address,address,uint,uint)", token0, token1, amount, leverageAmount));
+        (bool success, bytes memory data) = leverage.delegatecall(abi.encodeWithSignature("long(address,address,uint256,uint256)", token0, token1, amount, leverageAmount));
 
-        console.log("HERE");
-        // require(success, "failed");
+        require(success, "delegate to leverage failed");
 
         // bool res = abi.decode(data, (bool));
 
-        console.log(success);
 
-        //console.log("result");
-        // console.log(res);
+        console.log("logging mapping inside child contract:");
+        console.log(Positions[token0]);
 
         return true;
     }
@@ -81,7 +76,11 @@ contract RouterTest {
             Child child = new Child(leverage, msg.sender);
             UserContracts[msg.sender] = address(child);
 
-            console.log("inside router");
+            console.log("First Time User calling Router");
+
+            // Calling Child contract
+            child.long(token0, token1, amount, leverageAmount);
+            
         } else {
             Child child = Child(UserContracts[msg.sender]);
 
