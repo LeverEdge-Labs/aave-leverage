@@ -8,12 +8,14 @@ import "forge-std/console.sol";
 
 contract LeverageTest {
 
-    mapping(address => uint) public Positions;
+    // mapping(address => uint) public Positions;
+    uint public test;
     
     function long(address token0, address token1, uint amount, uint leverageAmount) public returns (bool) {
         console.log("inside leverage test");
 
-        Positions[token0] = amount;
+        // Positions[token0] = amount;
+        test = amount;
 
         return true;
     }
@@ -22,7 +24,8 @@ contract LeverageTest {
 
 contract Child {
 
-    mapping(address => uint) public Positions;
+    uint public test;
+    // mapping(address => uint) public Positions;
 
     address public leverage;
     address public router;
@@ -46,7 +49,7 @@ contract Child {
 
         console.log(leverage);
 
-        (bool success, bytes memory data) = payable(leverage).delegatecall(abi.encodeWithSignature("long(address, address, uint, uint)", token0, token1, amount, leverageAmount));
+        (bool success, bytes memory data) = leverage.delegatecall(abi.encodeWithSignature("long(address,address,uint,uint)", token0, token1, amount, leverageAmount));
 
         console.log("HERE");
         // require(success, "failed");
