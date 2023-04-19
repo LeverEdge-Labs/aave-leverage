@@ -52,7 +52,6 @@ contract Child {
 
         // bool res = abi.decode(data, (bool));
 
-
         console.log("logging mapping inside child contract:");
         console.log(Positions[token0]);
 
@@ -87,6 +86,5 @@ contract RouterTest {
             child.long(token0, token1, amount, leverageAmount);
         }
     }
-
 
 }
