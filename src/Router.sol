@@ -48,6 +48,35 @@ contract Router is Factory {
             UserPositionManager manager = UserPositionManager(UserPositionContracts[msg.sender]);
             manager.long(baseAsset, leveragedAsset, amount, leverage);
         }
+    }
 
+
+    function short(
+        address baseAsset,
+        address leveragedAsset,
+        uint amountBase,
+        UD60x18 leverage
+    ) external {
+        if (UserPositionContracts[msg.sender] == address(0)) {
+            UserPositionManager manager = new UserPositionManager(leverageContract, address(this), msg.sender);
+            UserPositionContracts[msg.sender] = address(manager);
+
+            console.log("First Time User calling Router");
+
+            // Calling Child contract
+            manager.short(baseAsset, leveragedAsset, amountBase, leverage);
+            
+        } else {
+            UserPositionManager manager = UserPositionManager(UserPositionContracts[msg.sender]);
+            manager.short(baseAsset, leveragedAsset, amountBase, leverage);
+        }
+    }
+
+
+    function closePosition(uint ID) external {
+        UserPositionManager manager = UserPositionManager(UserPositionContracts[msg.sender]);
+        require(address(manager) != address(0), "User Position Manager Not Found");
+
+        manager.closePosition(ID);
     }
 }

@@ -30,16 +30,31 @@ contract deployRouter is Test {
         assert(leverageContract != address(0));
     }
 
-    function testUserInteraction() public {
-
-        console.log(address(leverage));
-
+    function testUserInteractionLong() public {
         address base = address(0);
         address vol = address(0);
         uint amount = 1e18;
         UD60x18 leverage = ud(1e18);
 
         router.long(base, vol, amount, leverage);
-
     }
+
+    function testUserInteractionShort() public {
+        address base = address(0);
+        address vol = address(0);
+        uint amount = 1e18;
+        UD60x18 leverage = ud(1e18);
+
+        router.short(base, vol, amount, leverage);
+    }
+
+
+    function testUserInteractionClose() public {
+        uint ID = 0; 
+
+        router.closePosition(ID);
+        
+    }
+
+
 }

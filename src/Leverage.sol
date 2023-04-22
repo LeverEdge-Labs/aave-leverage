@@ -89,7 +89,7 @@ contract Leverage is Swapper {
         uint amount,
         UD60x18 leverage
     ) external returns (bool) {
-        console.log("inside leverage contract");
+        console.log("@dev inside leverage contract: LONG");
         
         IERC20(leveragedAsset).transferFrom(msg.sender, address(this), amount);
 
@@ -176,6 +176,7 @@ contract Leverage is Swapper {
         uint amountBase,
         UD60x18 leverage
     ) external returns (bool) {
+        console.log("@dev inside leverage contract: SHORT");
         IERC20(baseAsset).transferFrom(msg.sender, address(this), amountBase);
 
         uint flashLoanAmount = unwrap((ud(amountBase).mul(leverage)).sub(ud(amountBase)));
@@ -266,6 +267,8 @@ contract Leverage is Swapper {
 
     // @dev takes in ID of position, address == msg.sender
     function closePosition(uint ID) external returns (bool) {
+        console.log("@dev inside leverage contract: CLOSE");
+
         // @dev address(0) is currently a placeholder for pair address
         require(positions[address(0)][msg.sender][ID].baseAsset != address(0), "no position found");
         positions[address(0)][msg.sender][ID].isClosed = true;

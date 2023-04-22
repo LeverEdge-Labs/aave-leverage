@@ -80,20 +80,45 @@ contract UserPositionManager {
         uint amount,
         UD60x18 leverage
     ) external OnlyAuthed returns (bool) {
-
-        console.log("inside user liquidity manager");
-
-        console.log("address leverage");
-        console.log(leverageContract);
+        console.log("inside user liquidity manager: LONG");
  
         (bool success, bytes memory data) = leverageContract.delegatecall(
             abi.encodeWithSignature("long(address,address,uint256,uint256)", baseAsset, leveragedAsset, amount, leverage)
         );
         require(success, "call to leverage logic contract failed");
 
-        console.log(abi.decode(data, (bool)));
+        // console.log(abi.decode(data, (bool)));
 
         return true;
+
+    }
+
+    function short(
+        address baseAsset,
+        address leveragedAsset,
+        uint amountBase,
+        UD60x18 leverage
+    ) external OnlyAuthed returns (bool) {
+        console.log("inside user liquidity manager: SHORT");
+ 
+        (bool success, bytes memory data) = leverageContract.delegatecall(
+            abi.encodeWithSignature("short(address,address,uint256,uint256)", baseAsset, leveragedAsset, amountBase, leverage)
+        );
+        require(success, "call to leverage logic contract failed");
+
+        // console.log(abi.decode(data, (bool)));
+
+        return true;
+    }
+
+    function closePosition(uint ID) external OnlyAuthed returns (bool) {
+        console.log("inside user liquidity manager: CLOSE");
+
+        (bool success, bytes memory data) = leverageContract.delegatecall(
+            abi.encodeWithSignature("closePosition(uint256)", ID)
+        );
+        require(success, "call to leverage logic contract failed");
+
 
     }
 }
