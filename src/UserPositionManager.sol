@@ -16,7 +16,11 @@ import "forge-std/console.sol";
 
 contract UserPositionManager {
 
-    // are these structs needed?
+    // LEVERAGE CONTRACT DELEGATE CALL STORAGE
+    // @dev DO NOT CHANGE ORDER OF STORAGE
+
+    // @dev do we need variables in swapper.sol storage?
+
     struct Position {
         address baseAsset;
         address leveragedAsset;
@@ -35,9 +39,6 @@ contract UserPositionManager {
         bool isClose;
     }
 
-    // LEVERAGE CONTRACT DELEGATE CALL STORAGE
-    // @dev DO NOT CHANGE ORDER OF STORAGE
-
     // address pair v1core => address user => ID => Position
     mapping(address => mapping(address => mapping(uint => Position))) public positions;
 
@@ -53,7 +54,6 @@ contract UserPositionManager {
     // Mainnet values 
     // uint openFlashConstant = 1.0033e18;
     // uint closeFlashConstant = 1.009e16;
-
     uint openFlashConstant = 1.005e18;
     uint closeFlashConstant = 1.009e16;
 
