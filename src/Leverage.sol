@@ -73,6 +73,7 @@ contract Leverage is Swapper {
         owner == msg.sender;
     }
 
+
     function getUserPositions(address user) external view returns (uint numberPositions) {
         return IDs[user].length;
     }
@@ -139,7 +140,10 @@ contract Leverage is Swapper {
         swapExactInputSingle(baseAsset, leveragedAsset, borrowAmount);
     }
 
-
+    /// @notice Execute Close Long function 
+    /// @param flashParams flash loan parameters
+    /// @param flashLoanAmount flash loan amount
+    /// @param loanAmount flash loan amount plus fee
     function executeCloseLong(
         flashloanParams memory flashParams,
         uint flashLoanAmount,
@@ -239,7 +243,10 @@ contract Leverage is Swapper {
         swapExactInputSingle(leveragedAsset, baseAsset, borrowAmount);
     }
 
-
+    /// @notice Execute Close Short function 
+    /// @param flashParams flash loan parameters
+    /// @param flashLoanAmount flash loan amount
+    /// @param loanAmount flash loan amount plus fee
     function executeCloseShort(
         flashloanParams memory flashParams,
         uint flashLoanAmount,
@@ -265,7 +272,8 @@ contract Leverage is Swapper {
     }
 
 
-    // @dev takes in ID of position, address == msg.sender
+    /// @notice Close Position Function
+    /// @param ID ID of position
     function closePosition(uint ID) external returns (bool) {
         console.log("@dev inside leverage contract: CLOSE");
 
