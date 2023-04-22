@@ -34,18 +34,18 @@ contract deployRouter is Test {
         address base = address(0);
         address vol = address(0);
         uint amount = 1e18;
-        UD60x18 leverage = ud(1e18);
+        UD60x18 leverageAmount = ud(1e18);
 
-        router.long(base, vol, amount, leverage);
+        router.long(base, vol, amount, leverageAmount);
     }
 
     function testUserInteractionShort() public {
         address base = address(0);
         address vol = address(0);
         uint amount = 1e18;
-        UD60x18 leverage = ud(1e18);
+        UD60x18 leverageAmount = ud(1e18);
 
-        router.short(base, vol, amount, leverage);
+        router.short(base, vol, amount, leverageAmount);
     }
 
 
