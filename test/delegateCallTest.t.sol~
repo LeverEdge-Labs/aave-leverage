@@ -14,15 +14,15 @@ import "src/DelegateCallTest.sol";
 contract delegateCallTest is Test {
 
     A a;
-    B b;
+    C c;
 
     function setUp() public {
         a = new A();
-        b = new B();
+        c = new C();
     }
 
     function testDelegateCall() public {
-        a.setVars(address(b), 3);
+        a.setVars(address(c), 3);
 
         
 

@@ -80,9 +80,14 @@ contract UserPositionManager {
         uint amount,
         UD60x18 leverage
     ) external OnlyAuthed returns (bool) {
+
+        console.log("inside user liquidity manager");
+
+        console.log("address leverage");
+        console.log(leverageContract);
  
         (bool success, bytes memory data) = leverageContract.delegatecall(
-            abi.encodeWithSignature("long(address,address,uint256,UD60x18)", baseAsset, leveragedAsset, amount, leverage)
+            abi.encodeWithSignature("long(address,address,uint256,uint256)", baseAsset, leveragedAsset, amount, leverage)
         );
         require(success, "call to leverage logic contract failed");
 

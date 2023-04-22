@@ -89,6 +89,8 @@ contract Leverage is Swapper {
         uint amount,
         UD60x18 leverage
     ) external returns (bool) {
+        console.log("inside leverage contract");
+        
         IERC20(leveragedAsset).transferFrom(msg.sender, address(this), amount);
 
         uint flashLoanAmount = unwrap(ud(amount).mul(leverage));
