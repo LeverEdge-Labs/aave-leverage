@@ -12,7 +12,6 @@ import { UD60x18, ud, unwrap } from "@prb/math/UD60x18.sol";
 import "src/Leverage.sol";
 import "src/Router.sol";
 
-
 contract deployRouter is Test {
 
     Leverage leverage;
@@ -22,10 +21,10 @@ contract deployRouter is Test {
 
     function setUp() public {
         leverage = new Leverage(aaveV3);
-        router = new Router(address(leverage));
+        router = new Router(address(leverage), aaveV3);
     }
 
-    function testDeployed() public {
+    function testDeployed() public view {
         address leverageContract = router.leverageContract();
         assert(leverageContract != address(0));
     }
@@ -48,13 +47,10 @@ contract deployRouter is Test {
         router.short(base, vol, amount, leverageAmount);
     }
 
-
     function testUserInteractionClose() public {
         uint ID = 0; 
 
         router.closePosition(ID);
-        
     }
-
 
 }

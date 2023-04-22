@@ -4,7 +4,7 @@ pragma solidity ^0.8.19;
 import "@openzeppelin/contracts/token/ERC20/extensions/IERC20Metadata.sol";
 
 // Leverage
-import "./Factory.sol";
+// import "./Factory.sol";
 
 // User Position Manager
 import "./UserPositionManager.sol";
@@ -17,15 +17,19 @@ import "forge-std/console.sol";
 /// @author LeverEdge Labs
 /// @dev This contract is currently in development
 
-contract Router is Factory {
+contract Router {
     
     // address user => address leverage contract
     // mapping(address => address) leverageContracts;
 
-    address public leverageContract;
+    mapping(address => address) public UserPositionContracts;
 
-    constructor (address _leverageContract) {
+    address public leverageContract;
+    address public aaveV3;
+
+    constructor (address _leverageContract, address _aaveV3) {
         leverageContract = _leverageContract;
+        aaveV3 = _aaveV3;
     }
 
 
@@ -36,7 +40,7 @@ contract Router is Factory {
         UD60x18 leverage
     ) external {
         if (UserPositionContracts[msg.sender] == address(0)) {
-            UserPositionManager manager = new UserPositionManager(leverageContract, address(this), msg.sender);
+            UserPositionManager manager = new UserPositionManager(leverageContract, aaveV3, address(this), msg.sender);
             UserPositionContracts[msg.sender] = address(manager);
 
             console.log("First Time User calling Router");
@@ -58,7 +62,7 @@ contract Router is Factory {
         UD60x18 leverage
     ) external {
         if (UserPositionContracts[msg.sender] == address(0)) {
-            UserPositionManager manager = new UserPositionManager(leverageContract, address(this), msg.sender);
+            UserPositionManager manager = new UserPositionManager(leverageContract, aaveV3, address(this), msg.sender);
             UserPositionContracts[msg.sender] = address(manager);
 
             console.log("First Time User calling Router");

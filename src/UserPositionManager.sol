@@ -63,8 +63,9 @@ contract UserPositionManager {
     address leverageContract;
 
 
-    constructor (address _leverageContract, address _router, address _owner) {
+    constructor (address _leverageContract, address _aaveV3, address _router, address _owner) {
         leverageContract = _leverageContract;
+        aaveV3 = IPOOL(_aaveV3);
         router = _router;
         owner = _owner;
     }
@@ -85,12 +86,9 @@ contract UserPositionManager {
         (bool success, bytes memory data) = leverageContract.delegatecall(
             abi.encodeWithSignature("long(address,address,uint256,uint256)", baseAsset, leveragedAsset, amount, leverage)
         );
-        require(success, "call to leverage logic contract failed");
-
-        // console.log(abi.decode(data, (bool)));
+        require(success && abi.decode(data, (bool)), "call to leverage logic contract failed");
 
         return true;
-
     }
 
     function short(
@@ -104,9 +102,7 @@ contract UserPositionManager {
         (bool success, bytes memory data) = leverageContract.delegatecall(
             abi.encodeWithSignature("short(address,address,uint256,uint256)", baseAsset, leveragedAsset, amountBase, leverage)
         );
-        require(success, "call to leverage logic contract failed");
-
-        // console.log(abi.decode(data, (bool)));
+        require(success && abi.decode(data, (bool)), "call to leverage logic contract failed");
 
         return true;
     }
@@ -117,8 +113,9 @@ contract UserPositionManager {
         (bool success, bytes memory data) = leverageContract.delegatecall(
             abi.encodeWithSignature("closePosition(uint256)", ID)
         );
-        require(success, "call to leverage logic contract failed");
+        require(success && abi.decode(data, (bool)), "call to leverage logic contract failed");
 
-
+        return true;
     }
+
 }
