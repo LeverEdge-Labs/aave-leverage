@@ -100,8 +100,6 @@ contract Leverage is Swapper {
 
         IERC20(leveragedAsset).transferFrom(msg.sender, address(this), amount);
 
-        console.log("HERE!");
-
         uint flashLoanAmount = unwrap(ud(amount).mul(leverage));
 
         uint ID = IDs[msg.sender].length;
@@ -123,7 +121,8 @@ contract Leverage is Swapper {
         
         getflashloan(leveragedAsset, flashLoanAmount, params);
 
-        // console.log("HERE!");
+        console.log("HERE");
+
         return true;
     }
 
@@ -323,7 +322,11 @@ contract Leverage is Swapper {
         uint[] memory modes = new uint[](1);
         modes[0] = 0;
 
+        // console.log("HERE");
+
         aaveV3.flashLoan(address(this), assets, amounts, modes, address(this), params, 0);
+
+        // console.log("end fl");
     }
 
 
@@ -368,6 +371,8 @@ contract Leverage is Swapper {
         uint leftOver = IERC20(assets[0]).balanceOf(address(this)) - (amounts[0] + premiums[0]);
         
         IERC20(assets[0]).transfer(msg.sender, leftOver);
+
+        console.log("HERE");
 
         return true;
     }

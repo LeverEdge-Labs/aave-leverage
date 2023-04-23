@@ -32,65 +32,16 @@ contract Router {
         aaveV3 = _aaveV3;
     }
 
+    // function getPositionManager(address user) 
+    function getPositionManager() external view returns (address) {
+        return UserPositionContracts[msg.sender];
+    }
+
     function createPositionManager() external returns (address) {
         require(UserPositionContracts[msg.sender] == address(0), "PositionManager Already Created");
         UserPositionManager manager = new UserPositionManager(leverageContract, aaveV3, address(this), msg.sender);
         UserPositionContracts[msg.sender] = address(manager);
 
         return address(manager);
-    }
-
-
-    function long(
-        address baseAsset,
-        address leveragedAsset,
-        uint amount,
-        UD60x18 leverage
-    ) external {
-        if (UserPositionContracts[msg.sender] == address(0)) {
-            UserPositionManager manager = new UserPositionManager(leverageContract, aaveV3, address(this), msg.sender);
-            UserPositionContracts[msg.sender] = address(manager);
-
-            console.log("First Time User calling Router");
-
-            // Calling Child contract
-            IERC20(leveragedAsset).approve(address(manager), type(uint).max);
-
-            manager.long(baseAsset, leveragedAsset, amount, leverage);
-            
-        } else {
-            UserPositionManager manager = UserPositionManager(UserPositionContracts[msg.sender]);
-            manager.long(baseAsset, leveragedAsset, amount, leverage);
-        }
-    }
-
-
-    function short(
-        address baseAsset,
-        address leveragedAsset,
-        uint amountBase,
-        UD60x18 leverage
-    ) external {
-        if (UserPositionContracts[msg.sender] == address(0)) {
-            UserPositionManager manager = new UserPositionManager(leverageContract, aaveV3, address(this), msg.sender);
-            UserPositionContracts[msg.sender] = address(manager);
-
-            console.log("First Time User calling Router");
-
-            // Calling Child contract
-            manager.short(baseAsset, leveragedAsset, amountBase, leverage);
-            
-        } else {
-            UserPositionManager manager = UserPositionManager(UserPositionContracts[msg.sender]);
-            manager.short(baseAsset, leveragedAsset, amountBase, leverage);
-        }
-    }
-
-
-    function closePosition(uint ID) external {
-        UserPositionManager manager = UserPositionManager(UserPositionContracts[msg.sender]);
-        require(address(manager) != address(0), "User Position Manager Not Found");
-
-        manager.closePosition(ID);
     }
 }

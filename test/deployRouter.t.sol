@@ -29,6 +29,8 @@ contract deployRouter is Test {
 
         leverage = new Leverage(aaveV3);
         router = new Router(address(leverage), aaveV3);
+
+        router.createPositionManager();
     }
 
     function testDeployed() public view {
@@ -36,11 +38,6 @@ contract deployRouter is Test {
         assert(leverageContract != address(0));
     }
 
-/* 
-    function testCreateManager() public {
-        router.createPositionManager();
-    }
-     */
 
     function testUserInteractionLong() public {
         // 2x WETH USDC 
@@ -50,20 +47,16 @@ contract deployRouter is Test {
         getWETH();
  
         // STEP #2 Create Position Manager
-        // address positionManager = router.createPositionManager();
-        // console.log(positionManager);
-
-        // console.log(m)
-
+        address leverageAddress = router.getPositionManager();
+        console.log(leverageAddress);
 
         // STEP #3 Approve Position Manager
-        IERC20(WETH).approve(address(router), type(uint).max);
-
+        IERC20(WETH).approve(address(leverageAddress), type(uint).max);
 
 
         // STEP #3 Open Long
         // USDC WETH 1ETH 2x long
-        router.long(USDC, WETH, 1e18, ud(2e18));
+        UserPositionManager(leverageAddress).long(USDC, WETH, 1e18, ud(2e18));
 
         // STEP #4 Close Long
         // ID of position 0

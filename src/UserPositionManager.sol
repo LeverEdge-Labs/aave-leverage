@@ -92,7 +92,7 @@ contract UserPositionManager {
         (bool success, bytes memory data) = leverageContract.delegatecall(
             abi.encodeWithSignature("long(address,address,uint256,uint256)", baseAsset, leveragedAsset, amount, leverage)
         );
-        require(success && abi.decode(data, (bool)), "call to leverage logic contract failed");
+        require(success && abi.decode(data, (bool)), "call to leverage logic contract failed 1");
 
         return true;
     }
@@ -112,6 +112,29 @@ contract UserPositionManager {
 
         return true;
     }
+
+
+    function executeOperation (
+        address[] calldata assets,
+        uint[] calldata amounts,
+        uint[] calldata premiums,
+        address initiator,
+        bytes calldata _params
+    ) external returns (bool) {
+        // require(msg.sender == address(aaveV3), "not aave");
+        // require(initiator == address(this), "only from this contract");
+        
+        (bool success, bytes memory data) = leverageContract.delegatecall(
+            abi.encodeWithSignature("executeOperation(address[],uint256[],uint256[],address,bytes)", assets, amounts, premiums, initiator, _params)
+        );
+
+        require(success && abi.decode(data, (bool)), "call to leverage logic contract failed 2");
+
+        console.log("end user position exec");
+
+        
+    }
+
 
     function closePosition(uint ID) external OnlyAuthed returns (bool) {
         console.log("inside user liquidity manager: CLOSE");
