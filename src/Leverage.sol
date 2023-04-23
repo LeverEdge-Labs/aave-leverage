@@ -91,8 +91,16 @@ contract Leverage is Swapper {
         UD60x18 leverage
     ) external returns (bool) {
         console.log("@dev inside leverage contract: LONG");
-        
+
+        console.log(msg.sender);
+        console.log(address(this));
+
+        uint allowance = IERC20(leveragedAsset).allowance(msg.sender, address(this));
+        console.log(allowance);
+
         IERC20(leveragedAsset).transferFrom(msg.sender, address(this), amount);
+
+        console.log("HERE!");
 
         uint flashLoanAmount = unwrap(ud(amount).mul(leverage));
 
@@ -114,6 +122,8 @@ contract Leverage is Swapper {
         bytes memory params = abi.encode(flashParams);
         
         getflashloan(leveragedAsset, flashLoanAmount, params);
+
+        // console.log("HERE!");
         return true;
     }
 

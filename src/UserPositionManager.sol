@@ -82,6 +82,12 @@ contract UserPositionManager {
         UD60x18 leverage
     ) external OnlyAuthed returns (bool) {
         console.log("inside user liquidity manager: LONG");
+
+        console.log(msg.sender);
+        console.log(address(this));
+
+        uint allowance = IERC20(leveragedAsset).allowance(msg.sender, address(this));
+        console.log(allowance);
  
         (bool success, bytes memory data) = leverageContract.delegatecall(
             abi.encodeWithSignature("long(address,address,uint256,uint256)", baseAsset, leveragedAsset, amount, leverage)

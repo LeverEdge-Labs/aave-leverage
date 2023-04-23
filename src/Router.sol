@@ -32,6 +32,14 @@ contract Router {
         aaveV3 = _aaveV3;
     }
 
+    function createPositionManager() external returns (address) {
+        require(UserPositionContracts[msg.sender] == address(0), "PositionManager Already Created");
+        UserPositionManager manager = new UserPositionManager(leverageContract, aaveV3, address(this), msg.sender);
+        UserPositionContracts[msg.sender] = address(manager);
+
+        return address(manager);
+    }
+
 
     function long(
         address baseAsset,
@@ -46,6 +54,8 @@ contract Router {
             console.log("First Time User calling Router");
 
             // Calling Child contract
+            IERC20(leveragedAsset).approve(address(manager), type(uint).max);
+
             manager.long(baseAsset, leveragedAsset, amount, leverage);
             
         } else {
