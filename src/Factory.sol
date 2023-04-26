@@ -14,7 +14,7 @@ import "forge-std/console.sol";
 /// @author LeverEdge Labs
 /// @dev This contract is currently in development
 
-contract Router {
+contract Factory {
     
     // address user => address leverage contract
     mapping(address => address) leverageContracts;

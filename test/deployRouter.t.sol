@@ -10,7 +10,7 @@ import { SD59x18, sd } from "@prb/math/SD59x18.sol";
 import { UD60x18, ud, unwrap } from "@prb/math/UD60x18.sol";
 
 import "src/Leverage.sol";
-import "src/Router.sol";
+import "src/Factory.sol";
 
 contract deployRouter is Test {
     uint ethFork;
@@ -20,20 +20,20 @@ contract deployRouter is Test {
     address USDC = vm.envAddress("USDC_ETH");
 
     Leverage leverage;
-    Router router;
+    Factory factory;
 
     address aaveV3 = vm.envAddress("AAVEV3_POOL_ETH");
 
     function setUp() public {
         ethFork = vm.createSelectFork(ETH_RPC);
 
-        router = new Router(aaveV3);
+        factory = new Factory(aaveV3);
 
-        router.createLeverageContract();
+        factory.createLeverageContract();
     }
 
     function testDeployed() public view {
-        address leverageContract = router.getLeverageContract();
+        address leverageContract = factory.getLeverageContract();
         assert(leverageContract != address(0));
     }
 
@@ -46,7 +46,7 @@ contract deployRouter is Test {
         getWETH();
  
         // STEP #2 Create Position Manager
-        address leverageAddress = router.getLeverageContract();
+        address leverageAddress = factory.getLeverageContract();
         console.log(leverageAddress);
 
         // STEP #3 Approve Position Manager
@@ -59,8 +59,8 @@ contract deployRouter is Test {
 
         // STEP #4 Close Long
         // ID of position 0
-        // router.closePosition(0);
-        // console.log("Position Closed");
+        Leverage(leverageAddress).closePosition(0);
+        console.log("Position Closed");
 
     }
 
