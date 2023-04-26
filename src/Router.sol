@@ -4,10 +4,7 @@ pragma solidity ^0.8.19;
 import "@openzeppelin/contracts/token/ERC20/extensions/IERC20Metadata.sol";
 
 // Leverage
-// import "./Factory.sol";
-
-// User Position Manager
-import "./UserPositionManager.sol";
+import "./Leverage.sol";
 
 // console log
 import "forge-std/console.sol";
@@ -20,28 +17,22 @@ import "forge-std/console.sol";
 contract Router {
     
     // address user => address leverage contract
-    // mapping(address => address) leverageContracts;
+    mapping(address => address) leverageContracts;
 
-    mapping(address => address) public UserPositionContracts;
-
-    address public leverageContract;
     address public aaveV3;
 
-    constructor (address _leverageContract, address _aaveV3) {
-        leverageContract = _leverageContract;
+    constructor (address _aaveV3) {
         aaveV3 = _aaveV3;
     }
 
-    // function getPositionManager(address user) 
-    function getPositionManager() external view returns (address) {
-        return UserPositionContracts[msg.sender];
+    function getLeverageContract() external view returns (address) {
+        return leverageContracts[msg.sender];
     }
-
-    function createPositionManager() external returns (address) {
-        require(UserPositionContracts[msg.sender] == address(0), "PositionManager Already Created");
-        UserPositionManager manager = new UserPositionManager(leverageContract, aaveV3, address(this), msg.sender);
-        UserPositionContracts[msg.sender] = address(manager);
-
-        return address(manager);
+    
+    function createLeverageContract() external returns (address) {
+        require(leverageContracts[msg.sender] == address(0), "Leverage contract already created");
+        Leverage leverageContract = new Leverage(aaveV3);
+        leverageContracts[msg.sender] = address(leverageContract);
+        return address(leverageContract);
     }
 }

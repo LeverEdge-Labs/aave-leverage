@@ -27,14 +27,13 @@ contract deployRouter is Test {
     function setUp() public {
         ethFork = vm.createSelectFork(ETH_RPC);
 
-        leverage = new Leverage(aaveV3);
-        router = new Router(address(leverage), aaveV3);
+        router = new Router(aaveV3);
 
-        router.createPositionManager();
+        router.createLeverageContract();
     }
 
     function testDeployed() public view {
-        address leverageContract = router.leverageContract();
+        address leverageContract = router.getLeverageContract();
         assert(leverageContract != address(0));
     }
 
@@ -47,7 +46,7 @@ contract deployRouter is Test {
         getWETH();
  
         // STEP #2 Create Position Manager
-        address leverageAddress = router.getPositionManager();
+        address leverageAddress = router.getLeverageContract();
         console.log(leverageAddress);
 
         // STEP #3 Approve Position Manager
@@ -56,7 +55,7 @@ contract deployRouter is Test {
 
         // STEP #3 Open Long
         // USDC WETH 1ETH 2x long
-        UserPositionManager(leverageAddress).long(USDC, WETH, 1e18, ud(2e18));
+        Leverage(leverageAddress).long(USDC, WETH, 1e18, ud(2e18));
 
         // STEP #4 Close Long
         // ID of position 0
