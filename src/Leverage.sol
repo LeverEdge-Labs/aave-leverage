@@ -90,14 +90,6 @@ contract Leverage is Swapper {
         uint amount,
         UD60x18 leverage
     ) external returns (bool) {
-        console.log("@dev inside leverage contract: LONG");
-
-        console.log(msg.sender);
-        console.log(address(this));
-
-        uint allowance = IERC20(leveragedAsset).allowance(msg.sender, address(this));
-        console.log(allowance);
-
         IERC20(leveragedAsset).transferFrom(msg.sender, address(this), amount);
 
         uint flashLoanAmount = unwrap(ud(amount).mul(leverage));
@@ -120,8 +112,6 @@ contract Leverage is Swapper {
         bytes memory params = abi.encode(flashParams);
         
         getflashloan(leveragedAsset, flashLoanAmount, params);
-
-        console.log("HERE");
 
         return true;
     }
@@ -162,6 +152,9 @@ contract Leverage is Swapper {
 
         IERC20(positionParams.baseAsset).approve(address(aaveV3), flashLoanAmount);
         aaveV3.repay(positionParams.baseAsset, flashLoanAmount, 2, address(this));
+
+        console.log("HERE");
+        viewAccountData();
 
         uint swapAmount;
         {
@@ -307,6 +300,7 @@ contract Leverage is Swapper {
         // @dev 0 because leverage is not needed for closing position
         flashloanParams memory flashParams = flashloanParams(msg.sender, flashloanAsset, flashLoanAmount, pos_params.isLong, true);
         bytes memory params = abi.encode(flashParams);
+
         getflashloan(flashloanAsset, flashLoanAmount, params);
         return true;
     }
@@ -322,9 +316,13 @@ contract Leverage is Swapper {
         uint[] memory modes = new uint[](1);
         modes[0] = 0;
 
-        // console.log("HERE");
+        console.log("HERE pre fl");
+        console.log(asset);
+        console.log(amount);
 
         aaveV3.flashLoan(address(this), assets, amounts, modes, address(this), params, 0);
+
+        console.log("HERE post fl");
 
         // console.log("end fl");
     }
