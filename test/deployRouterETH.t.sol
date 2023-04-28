@@ -13,19 +13,19 @@ import "src/Leverage.sol";
 import "src/Factory.sol";
 
 contract deployRouter is Test {
-    uint polyFork;
-    string POLY_RPC = vm.envString("Polygon_RPC");
+    uint ethFork;
+    string ETH_RPC = vm.envString("ETH_RPC");
 
-    address WETH = vm.envAddress("WETH_POLY");
-    address USDC = vm.envAddress("USDC_POLY");
+    address WETH = vm.envAddress("WETH_ETH");
+    address USDC = vm.envAddress("USDC_ETH");
 
     Leverage leverage;
     Factory factory;
 
-    address aaveV3 = vm.envAddress("AAVEV3_POOL_POLY");
+    address aaveV3 = vm.envAddress("AAVEV3_POOL_ETH");
 
     function setUp() public {
-        polyFork = vm.createSelectFork(POLY_RPC);
+        ethFork = vm.createSelectFork(ETH_RPC);
 
         factory = new Factory(aaveV3);
 

@@ -110,6 +110,8 @@ contract Leverage is Swapper {
         );
 
         bytes memory params = abi.encode(flashParams);
+
+        console.log("HERE");
         
         getflashloan(leveragedAsset, flashLoanAmount, params);
 
@@ -132,6 +134,9 @@ contract Leverage is Swapper {
         aaveV3.supply(leveragedAsset, totalAmount, address(this), 0);
 
         uint price = getPrice(leveragedAsset, baseAsset);
+        console.log("price");
+        console.log(price);
+
         uint borrowAmount = flashLoanAmount * price * openFlashConstant / 1e36;
 
         aaveV3.borrow(baseAsset, borrowAmount, 2, 0, address(this));
@@ -152,9 +157,6 @@ contract Leverage is Swapper {
 
         IERC20(positionParams.baseAsset).approve(address(aaveV3), flashLoanAmount);
         aaveV3.repay(positionParams.baseAsset, flashLoanAmount, 2, address(this));
-
-        console.log("HERE");
-        viewAccountData();
 
         uint swapAmount;
         {
@@ -182,7 +184,6 @@ contract Leverage is Swapper {
         uint amountBase,
         UD60x18 leverage
     ) external returns (bool) {
-        console.log("@dev inside leverage contract: SHORT");
         IERC20(baseAsset).transferFrom(msg.sender, address(this), amountBase);
 
         uint flashLoanAmount = unwrap((ud(amountBase).mul(leverage)).sub(ud(amountBase)));
@@ -228,19 +229,9 @@ contract Leverage is Swapper {
         // more liquidity @ price => smaller constant
         // need to use swapExactOutput....
 
-        console.log("PRICE");
-        console.log(price);
-
         uint borrowAmount = (((flashLoanAmount * 10**decimals) / price) * openFlashConstant) / (10**decimals);
 
-        console.log(borrowAmount);
-
-        console.log("view account data");
-        viewAccountData();
-        
         aaveV3.borrow(leveragedAsset, borrowAmount, 2, 0, address(this));
-
-        console.log("post borrow");
 
         swapExactInputSingle(leveragedAsset, baseAsset, borrowAmount);
     }
@@ -277,8 +268,6 @@ contract Leverage is Swapper {
     /// @notice Close Position Function
     /// @param ID ID of position
     function closePosition(uint ID) external returns (bool) {
-        console.log("@dev inside leverage contract: CLOSE");
-
         // @dev address(0) is currently a placeholder for pair address
         require(positions[address(0)][msg.sender][ID].baseAsset != address(0), "no position found");
         positions[address(0)][msg.sender][ID].isClosed = true;
@@ -316,15 +305,9 @@ contract Leverage is Swapper {
         uint[] memory modes = new uint[](1);
         modes[0] = 0;
 
-        console.log("HERE pre fl");
-        console.log(asset);
-        console.log(amount);
-
+        console.log("pre fl");
         aaveV3.flashLoan(address(this), assets, amounts, modes, address(this), params, 0);
-
-        console.log("HERE post fl");
-
-        // console.log("end fl");
+        console.log("post fl");
     }
 
 
@@ -369,8 +352,6 @@ contract Leverage is Swapper {
         uint leftOver = IERC20(assets[0]).balanceOf(address(this)) - (amounts[0] + premiums[0]);
         
         IERC20(assets[0]).transfer(msg.sender, leftOver);
-
-        console.log("HERE");
 
         return true;
     }

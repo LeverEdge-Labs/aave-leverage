@@ -13,19 +13,19 @@ import "src/Leverage.sol";
 import "src/Factory.sol";
 
 contract deployRouter is Test {
-    uint ethFork;
-    string ETH_RPC = vm.envString("ETH_RPC");
+    uint avaxFork;
+    string Avalanche_RPC = vm.envString("Avalanche_RPC");
 
-    address WETH = vm.envAddress("WETH_ETH");
-    address USDC = vm.envAddress("USDC_ETH");
+    address WETH = vm.envAddress("WETH_AVAX");
+    address USDC = vm.envAddress("USDC_AVAX");
 
     Leverage leverage;
     Factory factory;
 
-    address aaveV3 = vm.envAddress("AAVEV3_POOL_ETH");
+    address aaveV3 = vm.envAddress("AAVEV3_POOL_AVAX");
 
     function setUp() public {
-        ethFork = vm.createSelectFork(ETH_RPC);
+        avaxFork = vm.createSelectFork(Avalanche_RPC);
 
         factory = new Factory(aaveV3);
 
@@ -43,8 +43,8 @@ contract deployRouter is Test {
         // User transfers 1 WETH and has 2 WETH deposited on Aave
 
         // STEP #1 Get WETH
-        getWETH();
- 
+        deal(WETH, address(this), 1e18);
+
         // STEP #2 Create Position Manager
         address leverageAddress = factory.getLeverageContract();
         console.log(leverageAddress);
@@ -52,50 +52,40 @@ contract deployRouter is Test {
         // STEP #3 Approve Position Manager
         IERC20(WETH).approve(address(leverageAddress), type(uint).max);
 
-
         // STEP #3 Open Long
         // USDC WETH 1ETH 2x long
         Leverage(leverageAddress).long(USDC, WETH, 1e18, ud(2e18));
+
+        console.log("Position Opened Successfully");
 
         // STEP #4 Close Long
         // ID of position 0
         Leverage(leverageAddress).closePosition(0);
         console.log("Position Closed");
-
     }
 
 
-    // @dev Helper functions
-    function getWETH() internal {
-        IERC20 weth = IERC20(WETH);
-        address user = 0x2fEb1512183545f48f6b9C5b4EbfCaF49CfCa6F3;
-        uint balance = weth.balanceOf(user);
-        assert(balance > 0);
-        vm.prank(user);
-        weth.approve(address(this), balance);
-        vm.prank(user);
-        weth.transfer(address(this), 1e18);
-
-        // console.log("Balance WETH");
-        // console.log(weth.balanceOf(address(this)));
-    }
-
-
-
-/* 
     function testUserInteractionShort() public {
-        address base = address(0);
-        address vol = address(0);
-        uint amount = 1e18;
-        UD60x18 leverageAmount = ud(1e18);
+        // STEP #1 Get USDC
+        deal(USDC, address(this), 2000e6);
 
-        router.short(base, vol, amount, leverageAmount);
+        // STEP #2 Create Position Manager
+        address leverageAddress = factory.getLeverageContract();
+        console.log(leverageAddress);
+
+        // STEP #3 Approve Position Manager
+        IERC20(USDC).approve(address(leverageAddress), type(uint).max);
+
+        // STEP #3 Open Short
+        // WETH USDC 2x short
+        Leverage(leverageAddress).short(USDC, WETH, 2000e6, ud(2e18));
+        console.log("Position Opened Successfully");
+
+        // STEP #4 Close Short
+        // ID of position 0
+        Leverage(leverageAddress).closePosition(0);
+        console.log("Position Closed");
     }
 
-    function testUserInteractionClose() public {
-        uint ID = 0; 
 
-        router.closePosition(ID);
-    }
- */
 }
