@@ -16,12 +16,16 @@ import "forge-std/console.sol";
 import "forge-std/Test.sol";
 
 contract Swapper {
-    IUniswapV3Factory public constant v3Factory = IUniswapV3Factory(0x1F98431c8aD98523631AE4a59f267346ea31F984);
-    ISwapRouter public constant swapRouter = ISwapRouter(0xE592427A0AEce92De3Edee1F18E0157C05861564);
+    IUniswapV3Factory public constant v3Factory =
+        IUniswapV3Factory(0x1F98431c8aD98523631AE4a59f267346ea31F984);
+    ISwapRouter public constant swapRouter =
+        ISwapRouter(0xE592427A0AEce92De3Edee1F18E0157C05861564);
 
-
-    // @dev gets price of token0 in terms of token1 
-    function getPrice(address token0, address token1) public view returns (uint) {
+    // @dev gets price of token0 in terms of token1
+    function getPrice(
+        address token0,
+        address token1
+    ) public view returns (uint) {
         uint price = estimateAmountOut(token0, 1e18, 12, token1);
         return price;
     }
@@ -47,7 +51,10 @@ contract Swapper {
         int56 tickCumulativesDelta = tickCumulatives[1] - tickCumulatives[0];
         int24 tick = int24(tickCumulativesDelta / int56(uint56(secondsAgo)));
 
-        if (tickCumulativesDelta < 0 && (tickCumulativesDelta % int56(uint56(secondsAgo)) != 0)) {
+        if (
+            tickCumulativesDelta < 0 &&
+            (tickCumulativesDelta % int56(uint56(secondsAgo)) != 0)
+        ) {
             tick--;
         }
 
@@ -60,29 +67,36 @@ contract Swapper {
     }
 
     // @dev gets pool address of token pair on uniswap v3
-    function getPool(address token0, address token1, uint24 fee) internal view returns (address) {
+    function getPool(
+        address token0,
+        address token1,
+        uint24 fee
+    ) internal view returns (address) {
         address pool = v3Factory.getPool(token0, token1, fee);
 
         require(pool != address(0), "Pool does not exist on Uniswap V3");
         return pool;
     }
 
-
     // @dev swaps a fixed amount of token0 for a maximum possible amount of token1
-    function swapExactInputSingle(address token0, address token1, uint amountIn) internal returns (uint amountOut) {
+    function swapExactInputSingle(
+        address token0,
+        address token1,
+        uint amountIn
+    ) internal returns (uint amountOut) {
         SafeERC20.safeApprove(IERC20(token0), address(swapRouter), amountIn);
 
         ISwapRouter.ExactInputSingleParams memory params = ISwapRouter
-        .ExactInputSingleParams({
-            tokenIn: token0,
-            tokenOut: token1,
-            fee: 3000,
-            recipient: address(this),
-            deadline: block.timestamp,
-            amountIn: amountIn,
-            amountOutMinimum: 0,
-            sqrtPriceLimitX96: 0
-        });
+            .ExactInputSingleParams({
+                tokenIn: token0,
+                tokenOut: token1,
+                fee: 3000,
+                recipient: address(this),
+                deadline: block.timestamp,
+                amountIn: amountIn,
+                amountOutMinimum: 0,
+                sqrtPriceLimitX96: 0
+            });
         amountOut = swapRouter.exactInputSingle(params);
     }
 }
