@@ -13,8 +13,7 @@ import "src/Factory.sol";
 import "src/Leverage.sol";
 
 
-
-contract longTest is Test {
+contract shortTest is Test {
     uint ethFork;
     string ETH_RPC = vm.envString("ETH_RPC");
 
@@ -33,49 +32,42 @@ contract longTest is Test {
         factory = new Factory(aaveV3_pool);
 
         // deploy leverage
-        leverage = Leverage(factory.deployLeverage());
+        leverage = Leverage(factory.createLeverageContract());
     }
 
-
-    // @dev Helper functions
-    function getWETH() internal {
-        IERC20 weth = IERC20(WETH);
-        address user = 0x2fEb1512183545f48f6b9C5b4EbfCaF49CfCa6F3;
-        uint balance = weth.balanceOf(user);
+    function getUSDC() internal {
+        IERC20 usdc = IERC20(USDC);
+        address user = 0x7713974908Be4BEd47172370115e8b1219F4A5f0;
+        uint balance = usdc.balanceOf(user);
         assert(balance > 0);
         vm.prank(user);
-        weth.approve(address(this), balance);
+        usdc.approve(address(this), balance);
         vm.prank(user);
-        weth.transfer(address(this), 1e18);
-
-        // console.log("Balance WETH");
-        // console.log(weth.balanceOf(address(this)));
+        usdc.transfer(address(this), 2000e6);
     }
 
 
-    function testOpenLong() public {
-        // 2x WETH USDC 
-        // User transfers 1 WETH and has 2 WETH deposited on Aave
-
-        // STEP #1 Get WETH
-        getWETH();
+    function testOpenShort() public {
+        // STEP #1 Get USDC 
+        getUSDC();
 
         // STEP #2 Approve leverage
-        IERC20(WETH).approve(address(leverage), type(uint).max);
+        IERC20(USDC).approve(address(leverage), type(uint).max);
 
-        // STEP #3 Open Long
-        // USDC WETH 1ETH 2x long
-        leverage.long(USDC, WETH, 1e18, ud(2e18));
+        // STEP #3 Open Short
+        // USDC WETH 2000 USDC 2x short
+        leverage.short(USDC, WETH, 2000e6, ud(2e18));
 
-        // STEP #4 Close Long
+        // STEP #4 Close Position
         // ID of position 0
         leverage.closePosition(0);
         console.log("Position Closed");
-
+        
         console.log("balance USDC");
         console.log(IERC20(USDC).balanceOf(address(this)));
         console.log("balance WETH");
         console.log(IERC20(WETH).balanceOf(address(this)));
     }
+
 
 }
